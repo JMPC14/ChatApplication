@@ -1,5 +1,6 @@
 package com.example.chatapplication
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -39,7 +40,6 @@ class ChatLogActivity : AppCompatActivity() {
     companion object {
         const val TAG = "ChatLog"
         const val OTHER_USER_KEY = "OTHER_USER_KEY"
-        var latestMessage: String? = null
     }
 
     val adapter = GroupAdapter<GroupieViewHolder>()
@@ -133,6 +133,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        adapter.clear()
+        super.onStop()
+    }
+
     private var photoAttachmentUri: Uri? = null
 
     private var fileAttachmentUri: Uri? = null
@@ -151,7 +156,6 @@ class ChatLogActivity : AppCompatActivity() {
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
             fileAttachmentUri = data.data
-//            FirebaseManager.attachedFileSize = File(fileAttachmentUri.toString()).length() / 1024 / 1024
             fileAttachedLayout.visibility = View.VISIBLE
             sendMessageButton.isEnabled = true
         }
@@ -193,7 +197,7 @@ class ChatLogActivity : AppCompatActivity() {
             }
 
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-                if (p0.child("hidden").exists()) {
+                if (p0.child("hidden").value == true) {
                     return
                 }
                 val chatMessage = p0.getValue(ChatMessage::class.java)
@@ -226,30 +230,15 @@ class ChatLogActivity : AppCompatActivity() {
                 }
             }
 
-//                if (chatMessage?.imageUrl == "") {
-//
-//                    if (chatMessage != null) {
-//                        Log.d(TAG, chatMessage.text)
-//
-//                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-//                            val currentUser = LatestMessagesActivity.currentUser
-//                            adapter.add(ChatFromItem(chatMessage.text, currentUser!!))
-//
-//                        } else {
-//                            adapter.add(ChatToItem(chatMessage.text, toUser!!))
-//                        }
-//                    }
-//                    recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
-//                }
-
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 if (p0.child("hidden").exists()) {
                     if (FirebaseManager.hiddenPosition != null) {
                         adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
                         FirebaseManager.hiddenPosition = null
                     }
+                } else {
+                    listenForMessages()
                 }
-                listenForMessages()
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -334,25 +323,12 @@ class ChatLogActivity : AppCompatActivity() {
         sendMessageButton.isEnabled = false
     }
 
-    /*private fun setupDummyData() {
-        val adapter = GroupAdapter<GroupieViewHolder>()
-
-        adapter.add(ChatFromItem("FROM MESSAGE"))
-        adapter.add(ChatToItem("TOM ESSAGE"))
-
-        recyclerChatLog.adapter = adapter
-    }*/
-
     class ChatFromItem(val id: String, val text: String, val user: User) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageFrom.text = text
             val target = viewHolder.itemView.imageMessageFrom
             Picasso.get().load(user.profileImageUrl).into(target)
-
-//            viewHolder.itemView.imageMessageFrom.setOnClickListener {
-//                Toast.makeText(it.context, "Test Toast", Toast.LENGTH_LONG).show()
-//            }
 
             viewHolder.itemView.textMessageFrom.setOnLongClickListener {
                 val pop = PopupMenu(it.context, it)
@@ -373,11 +349,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         override fun getLayout(): Int {
-            return if (latestMessage == FirebaseAuth.getInstance().uid) {
-                R.layout.chat_message_from_sequential
-            } else {
-                R.layout.chat_message_from
-            }
+            return R.layout.chat_message_from
         }
     }
 
