@@ -8,4 +8,5 @@ object FirebaseManager {
     var attachedFile: String? = null
     var attachedFileSize: Double? = null
     var attachedFileType: String? = null
+    var hiddenPosition: Int? = null
 }

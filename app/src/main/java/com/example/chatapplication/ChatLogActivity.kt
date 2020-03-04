@@ -10,15 +10,14 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
@@ -61,15 +60,15 @@ class ChatLogActivity : AppCompatActivity() {
 
         enterMessageText.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null
+                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null
+                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null
+                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
             }
 
         })
@@ -83,6 +82,9 @@ class ChatLogActivity : AppCompatActivity() {
             }
             if (fileAttachedLayout.visibility == View.VISIBLE) {
                 uploadFile()
+            }
+            else if (fileAttachedLayout.visibility == View.INVISIBLE && imageAttachedLayout.visibility == View.INVISIBLE) {
+                performSendMessage()
             }
         }
 
@@ -191,31 +193,33 @@ class ChatLogActivity : AppCompatActivity() {
             }
 
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                if (p0.child("hidden").exists()) {
+                    return
+                }
                 val chatMessage = p0.getValue(ChatMessage::class.java)
                 val currentUser = LatestMessagesActivity.currentUser!!
                 if (chatMessage != null) {
                     if (chatMessage.imageUrl == null && chatMessage.fileUrl == null) {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItem(chatMessage.text, currentUser))
+                            adapter.add(ChatFromItem(chatMessage.id, chatMessage.text, currentUser))
                         } else {
-                            adapter.add(ChatToItem(chatMessage.text, toUser!!))
+                            adapter.add(ChatToItem(p0.key!!, chatMessage.text, toUser!!))
                         }
                     }
 
                     else if (chatMessage.fileUrl != null) {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItemFile(chatMessage.text, currentUser, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!))
+                            adapter.add(ChatFromItemFile(chatMessage.id, chatMessage.text, currentUser, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!))
                         } else {
-                            adapter.add(ChatToItemFile(chatMessage.text, toUser!!, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!))
+                            adapter.add(ChatToItemFile(p0.key!!, chatMessage.text, toUser!!, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!))
                         }
                     }
 
                     else {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItemImage(chatMessage.text, currentUser, chatMessage.imageUrl!!
-                            ))
+                            adapter.add(ChatFromItemImage(chatMessage.id, chatMessage.text, currentUser, chatMessage.imageUrl!!))
                         } else {
-                            adapter.add(ChatToItemImage(chatMessage.text, toUser!!, chatMessage.imageUrl!!))
+                            adapter.add(ChatToItemImage(p0.key!!, chatMessage.text, toUser!!, chatMessage.imageUrl!!))
                         }
                     }
                     recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
@@ -239,6 +243,13 @@ class ChatLogActivity : AppCompatActivity() {
 //                }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                if (p0.child("hidden").exists()) {
+                    if (FirebaseManager.hiddenPosition != null) {
+                        adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
+                        FirebaseManager.hiddenPosition = null
+                    }
+                }
+                listenForMessages()
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -332,7 +343,7 @@ class ChatLogActivity : AppCompatActivity() {
         recyclerChatLog.adapter = adapter
     }*/
 
-    class ChatFromItem(val text: String, val user: User) : Item<GroupieViewHolder>() {
+    class ChatFromItem(val id: String, val text: String, val user: User) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageFrom.text = text
@@ -342,6 +353,23 @@ class ChatLogActivity : AppCompatActivity() {
 //            viewHolder.itemView.imageMessageFrom.setOnClickListener {
 //                Toast.makeText(it.context, "Test Toast", Toast.LENGTH_LONG).show()
 //            }
+
+            viewHolder.itemView.textMessageFrom.setOnLongClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_message_tap)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.hide_message -> {
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            ref.child("hidden").setValue(true)
+                            FirebaseManager.hiddenPosition = position
+                        }
+                    }
+                    true
+                }
+                pop.show()
+                true
+            }
         }
 
         override fun getLayout(): Int {
@@ -353,7 +381,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    class ChatToItem(val text: String, val user: User) : Item<GroupieViewHolder>() {
+    class ChatToItem(val id: String, val text: String, val user: User) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageTo.text = text
@@ -377,6 +405,23 @@ class ChatLogActivity : AppCompatActivity() {
                 }
                 pop.show()
             }
+
+            viewHolder.itemView.textMessageTo.setOnLongClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_message_tap)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.hide_message -> {
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            ref.child("hidden").setValue(true)
+                            FirebaseManager.hiddenPosition = position
+                        }
+                    }
+                    true
+                }
+                pop.show()
+                true
+            }
         }
 
         override fun getLayout(): Int {
@@ -385,7 +430,7 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
 
-    class ChatFromItemImage(val text: String, val user: User, val imageUrl: String) : Item<GroupieViewHolder>() {
+    class ChatFromItemImage(val id: String, val text: String, val user: User, val imageUrl: String) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_from_image
@@ -418,10 +463,27 @@ class ChatLogActivity : AppCompatActivity() {
                 }
                 pop.show()
             }
+
+            viewHolder.itemView.setOnLongClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_message_tap)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.hide_message -> {
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            ref.child("hidden").setValue(true)
+                            FirebaseManager.hiddenPosition = position
+                        }
+                    }
+                    true
+                }
+                pop.show()
+                true
+            }
         }
     }
 
-    class ChatToItemImage(val text: String, val user: User, val imageUrl: String) : Item<GroupieViewHolder>() {
+    class ChatToItemImage(val id: String, val text: String, val user: User, val imageUrl: String) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_to_image
@@ -454,10 +516,27 @@ class ChatLogActivity : AppCompatActivity() {
                 }
                 pop.show()
             }
+
+            viewHolder.itemView.setOnLongClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_message_tap)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.hide_message -> {
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            ref.child("hidden").setValue(true)
+                            FirebaseManager.hiddenPosition = position
+                        }
+                    }
+                    true
+                }
+                pop.show()
+                true
+            }
         }
     }
 
-    class ChatFromItemFile(val text: String, val user: User, val fileUrl: String, val fileSize: Double, val fileType: String) : Item<GroupieViewHolder>() {
+    class ChatFromItemFile(val id: String, val text: String, val user: User, val fileUrl: String, val fileSize: Double, val fileType: String) : Item<GroupieViewHolder>() {
         override fun getLayout(): Int {
             return R.layout.chat_message_from_file
         }
@@ -468,6 +547,7 @@ class ChatLogActivity : AppCompatActivity() {
             } else {
                 viewHolder.itemView.fileSizeFromFile.text = "${fileSize}kB"
             }
+
             viewHolder.itemView.fileTypeFromFile.text = fileType
             viewHolder.itemView.textMessageFromFile.text = text
             Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromFile)
@@ -475,11 +555,29 @@ class ChatLogActivity : AppCompatActivity() {
             if (text.isEmpty()) {
                 viewHolder.itemView.textMessageFromFile.height = 0
             }
+
             viewHolder.itemView.imageMessageFromFile.setOnClickListener {
                 val builder = CustomTabsIntent.Builder()
 
                 val customTabsIntent = builder.build()
                 customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(fileUrl))
+            }
+
+            viewHolder.itemView.textMessageFromFile.setOnLongClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_message_tap)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.hide_message -> {
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            ref.child("hidden").setValue(true)
+                            FirebaseManager.hiddenPosition = position
+                        }
+                    }
+                    true
+                }
+                pop.show()
+                true
             }
 
 //            viewHolder.itemView.imageMessageFromFile.setOnClickListener {
@@ -491,7 +589,7 @@ class ChatLogActivity : AppCompatActivity() {
 
     }
 
-    class ChatToItemFile(val text: String, val user: User, val fileUrl: String, val fileSize: Double, val fileType: String) : Item<GroupieViewHolder>() {
+    class ChatToItemFile(val id: String, val text: String, val user: User, val fileUrl: String, val fileSize: Double, val fileType: String) : Item<GroupieViewHolder>() {
         override fun getLayout(): Int {
             return R.layout.chat_message_to_file
         }
@@ -516,7 +614,51 @@ class ChatLogActivity : AppCompatActivity() {
                 val customTabsIntent = builder.build()
                 customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(fileUrl))
             }
-        }
 
+            viewHolder.itemView.textMessageToFile.setOnLongClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_message_tap)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.hide_message -> {
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            ref.child("hidden").setValue(true)
+                            FirebaseManager.hiddenPosition = position
+                        }
+                    }
+                    true
+                }
+                pop.show()
+                true
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.chat_log_options, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.unhide_messages -> {
+                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}")
+                ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onDataChange(p0: DataSnapshot) {
+                        p0.children.forEach {
+                            if (it.child("hidden").exists()) {
+                                if (it.child("hidden").value == true)
+                                    ref.child(it.key.toString()).child("hidden").removeValue()
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
