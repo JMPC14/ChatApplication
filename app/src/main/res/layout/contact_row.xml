@@ -2,15 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="90dp">
+    android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/userImageContactRow"
         android:layout_width="65dp"
         android:layout_height="65dp"
         android:layout_marginStart="8dp"
-        app:civ_border_width="2dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         app:civ_border_color="#000000"
+        app:civ_border_width="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,7 +22,7 @@
         android:id="@+id/usernameContactRow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:textColor="#000000"
         android:textSize="18sp"
         android:textStyle="bold"
