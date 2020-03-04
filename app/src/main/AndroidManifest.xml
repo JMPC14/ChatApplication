@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.chatapplication">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name="com.example.chatapplication.NewContactActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.ContactsActivity" />
+        </activity>
+        <activity android:name="com.example.chatapplication.ContactsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.LatestMessagesActivity" />
+        </activity>
+        <activity android:name="com.example.chatapplication.EditProfile">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.ProfileActivity" />
+        </activity>
+        <activity android:name="com.example.chatapplication.ProfileActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.LatestMessagesActivity" />
+        </activity>
+        <activity android:name="com.example.chatapplication.LauncherActivity" />
+        <activity android:name="com.example.chatapplication.ChatLogActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.LatestMessagesActivity" />
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.chatapplication.NewMessageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.LatestMessagesActivity" />
+        </activity>
+        <activity android:name="com.example.chatapplication.LatestMessagesActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.chatapplication.LoginActivity" />
+        <activity android:name="com.example.chatapplication.RegisterActivity" />
+    </application>
+
+</manifest>

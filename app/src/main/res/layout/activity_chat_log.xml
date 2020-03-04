@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ChatLogActivity">
+
+    <EditText
+        android:id="@+id/enterMessageText"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/rounded_text_enter_message"
+        android:ems="10"
+        android:hint="Enter Message..."
+        android:inputType="textPersonName"
+        android:padding="12dp"
+        android:paddingEnd="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/attachFile" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerChatLog"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="4dp"
+        android:background="#00FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/enterMessageText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <Button
+        android:id="@+id/attachPhoto"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/ic_photo_camera_green_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/enterMessageText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
+
+    <Button
+        android:id="@+id/attachFile"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/ic_folder_open_green_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/enterMessageText"
+        app:layout_constraintStart_toEndOf="@id/attachPhoto"
+        app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
+
+    <Button
+        android:id="@+id/sendMessageButton"
+        android:layout_width="30dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/ic_send_green_24dp"
+        android:enabled="false"
+        app:layout_constraintBottom_toBottomOf="@+id/enterMessageText"
+        app:layout_constraintEnd_toEndOf="@id/enterMessageText"
+        app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/imageAttachedLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_layout_image_attached"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerChatLog"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageAttachedImageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/btn_star_big_on" />
+
+        <TextView
+            android:id="@+id/imageAttachedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="8dp"
+            android:text="Image Attached"
+            android:textColor="#000000"
+            app:layout_constraintBottom_toBottomOf="@+id/imageAttachedImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageAttachedImageView"
+            app:layout_constraintTop_toTopOf="@+id/imageAttachedImageView" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fileAttachedLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_layout_image_attached"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerChatLog"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/fileAttachedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="File Attached"
+            android:textColor="#000000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
