@@ -1,6 +1,5 @@
 package com.example.chatapplication
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -15,9 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
-import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.constraintlayout.widget.Constraints
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -34,7 +31,7 @@ import kotlinx.android.synthetic.main.chat_message_from_image.view.*
 import kotlinx.android.synthetic.main.chat_message_to.view.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
-import java.io.File
+import java.time.LocalDateTime
 import java.util.*
 
 class ChatLogActivity : AppCompatActivity() {
@@ -50,6 +47,11 @@ class ChatLogActivity : AppCompatActivity() {
     override fun onStop() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
         ref.child("typing").setValue(false)
+        FirebaseManager.otherUser = null
+        FirebaseManager.attachedImage = null
+        FirebaseManager.attachedFile = null
+        FirebaseManager.attachedFileSize = null
+        FirebaseManager.attachedFileType = null
         super.onStop()
     }
 
@@ -90,7 +92,6 @@ class ChatLogActivity : AppCompatActivity() {
         listenForMessages()
 
         sendMessageButton.setOnClickListener {
-            Log.d(TAG, "Attempt to send message")
             if (imageAttachedLayout.visibility == View.VISIBLE) {
                 uploadImage()
             }
@@ -313,14 +314,19 @@ class ChatLogActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
-        val time = System.currentTimeMillis() / 1000
+        val timestamp = System.currentTimeMillis() / 1000
+        val year = LocalDateTime.now().year
+        val month = LocalDateTime.now().month
+        val date = LocalDateTime.now().dayOfMonth
+        val hour = LocalDateTime.now().hour
+        val minute = LocalDateTime.now().minute
 
         chatMessage = if (FirebaseManager.attachedImage != null) {
-            ChatMessage(ref.key!!, text, fromId, toId, time, FirebaseManager.attachedImage!!)
+            ChatMessage(ref.key!!, text, fromId, toId, timestamp, FirebaseManager.attachedImage!!)
         } else if (FirebaseManager.attachedFile != null) {
-            ChatMessage(ref.key!!, text, fromId, toId, time, FirebaseManager.attachedFile!!, FirebaseManager.attachedFileSize!!, FirebaseManager.attachedFileType!!)
+            ChatMessage(ref.key!!, text, fromId, toId, timestamp , FirebaseManager.attachedFile!!, FirebaseManager.attachedFileSize!!, FirebaseManager.attachedFileType!!)
         } else {
-            ChatMessage(ref.key!!, text, fromId, toId, time)
+            ChatMessage(ref.key!!, text, fromId, toId, timestamp)
         }
 
             ref.setValue(chatMessage)
@@ -451,7 +457,6 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.view_image -> {
                             val builder = CustomTabsIntent.Builder()
-
                             val customTabsIntent = builder.build()
                             customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(imageUrl))
                         }
@@ -504,7 +509,6 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.view_image -> {
                             val builder = CustomTabsIntent.Builder()
-
                             val customTabsIntent = builder.build()
                             customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(imageUrl))
                         }
@@ -555,7 +559,6 @@ class ChatLogActivity : AppCompatActivity() {
 
             viewHolder.itemView.imageMessageFromFile.setOnClickListener {
                 val builder = CustomTabsIntent.Builder()
-
                 val customTabsIntent = builder.build()
                 customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(fileUrl))
             }
@@ -607,7 +610,6 @@ class ChatLogActivity : AppCompatActivity() {
 
             viewHolder.itemView.imageMessageToFile.setOnClickListener {
                 val builder = CustomTabsIntent.Builder()
-
                 val customTabsIntent = builder.build()
                 customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(fileUrl))
             }

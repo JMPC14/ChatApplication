@@ -34,8 +34,8 @@ class NewContactActivity : AppCompatActivity() {
     }
 
     private fun fetchUsers() {
-        val ref = FirebaseDatabase.getInstance().getReference("/users")
-        ref.addListenerForSingleValueEvent(object: ValueEventListener {
+        val userRef = FirebaseDatabase.getInstance().getReference("/users")
+        userRef.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
             }
 
@@ -54,14 +54,14 @@ class NewContactActivity : AppCompatActivity() {
                     adapter.setOnItemClickListener { item, view ->
                         val newContactItem = item as NewContactItem
 
-                        val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user?.uid}/contacts")
-                        ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                        val contactRef = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user?.uid}/contacts")
+                        contactRef.addListenerForSingleValueEvent(object: ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {
                             }
 
                             override fun onDataChange(p0: DataSnapshot) {
                                 FirebaseManager.contacts?.add(newContactItem.user.uid)
-                                ref.setValue(FirebaseManager.contacts)
+                                contactRef.setValue(FirebaseManager.contacts)
                                     .addOnSuccessListener {
                                         finish()
                                     }
