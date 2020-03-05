@@ -60,16 +60,19 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun performRegister() {
+        val username = textUsernameRegister.text.toString()
         val email = textEmailRegister.text.toString()
         val password = textPasswordRegister.text.toString()
         val passwordConfirm = textPasswordRegisterConfirm.text.toString()
 
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter an email and password", Toast.LENGTH_LONG).show()
+        if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
+            Toast.makeText(this, "Please enter a username, email, and password", Toast.LENGTH_LONG).show()
             return
         }
         if (password != passwordConfirm) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_LONG).show()
+            textPasswordRegister.text.clear()
+            textPasswordRegisterConfirm.text.clear()
             return
         }
 
@@ -85,8 +88,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Log.d("Main", "Failed to create user: ${it.message}")
-                Toast.makeText(this, "Invalid parameters", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Invalid parameters: ${it.message}", Toast.LENGTH_LONG).show()
             }
     }
 

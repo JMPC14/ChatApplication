@@ -133,11 +133,6 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        adapter.clear()
-        super.onStop()
-    }
-
     private var photoAttachmentUri: Uri? = null
 
     private var fileAttachmentUri: Uri? = null

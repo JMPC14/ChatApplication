@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -147,17 +148,17 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            var chatPartnerId: String? = null
+            var chatPartnerId: String?
             if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
                 chatPartnerId = chatMessage.toId
                 if (chatMessage.imageUrl != null || chatMessage.fileUrl != null) {
-                    viewHolder.itemView.latestMessageRow.text = "You sent a file"
+                    viewHolder.itemView.textLatestMessageRow.text = "You sent a file"
                 } else {
-                    viewHolder.itemView.latestMessageRow.text = "You: ${chatMessage.text}"
+                    viewHolder.itemView.textLatestMessageRow.text = "You: ${chatMessage.text}"
                 }
             } else if (chatMessage.fileUrl == null && chatMessage.imageUrl == null) {
                 chatPartnerId = chatMessage.fromId
-                viewHolder.itemView.latestMessageRow.text = "Them: ${chatMessage.text}"
+                viewHolder.itemView.textLatestMessageRow.text = "Them: ${chatMessage.text}"
             }
             else {
                 chatPartnerId = chatMessage.fromId
@@ -171,12 +172,28 @@ class LatestMessagesActivity : AppCompatActivity() {
                 override fun onDataChange(p0: DataSnapshot) {
                     chatPartnerUser = p0.getValue(User::class.java)
                     if ((chatMessage.imageUrl != null || chatMessage.fileUrl != null) && chatMessage.fromId != FirebaseAuth.getInstance().uid) {
-                        viewHolder.itemView.latestMessageRow.text = "${chatPartnerUser?.username} sent a file"
+                        viewHolder.itemView.textLatestMessageRow.text = "${chatPartnerUser?.username} sent a file"
                     }
                     viewHolder.itemView.usernameLatestMessageRow.text = chatPartnerUser?.username
 
                     val targetItemView = viewHolder.itemView.userImageLatestMessageRow
                     Picasso.get().load(chatPartnerUser?.profileImageUrl).into(targetItemView)
+                }
+            })
+
+            val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/$chatPartnerId")
+            onlineRef.addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    if (p0.value == true) {
+                        viewHolder.itemView.onlineIndicatorLatestMessageRow.visibility = View.VISIBLE
+                    }
+                    else if (p0.value == false) {
+                        viewHolder.itemView.onlineIndicatorLatestMessageRow.visibility = View.INVISIBLE
+                    }
                 }
             })
         }
@@ -186,18 +203,23 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private fun fetchCurrentUser() {
         val uid = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError) {
-            }
+        if (uid != null) {
+            val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                }
 
-            override fun onDataChange(p0: DataSnapshot) {
-                currentUser = p0.getValue(User::class.java)
-                FirebaseManager.user = currentUser
-                Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
-                Log.d("LatestMessages", "Current user is ${currentUser?.username}")
-            }
-        })
+                override fun onDataChange(p0: DataSnapshot) {
+                    currentUser = p0.getValue(User::class.java)
+                    FirebaseManager.user = currentUser
+                    Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
+                    Log.d("LatestMessages", "Current user is ${currentUser?.username}")
+
+                    val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
+                    onlineRef.setValue(true)
+                }
+            })
+        }
     }
 
     private fun verifyUserLoggedIn() {
@@ -215,6 +237,8 @@ class LatestMessagesActivity : AppCompatActivity() {
                 startActivity(Intent(this, ProfileActivity::class.java))
             }
             R.id.sign_out -> {
+                val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
+                onlineRef.setValue(false)
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(this, LauncherActivity::class.java)
                 FirebaseManager.attachedFile = null

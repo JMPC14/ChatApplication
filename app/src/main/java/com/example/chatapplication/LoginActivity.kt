@@ -24,13 +24,16 @@ class LoginActivity :AppCompatActivity() {
             val email = textEmailLogin.text.toString()
             val password = textPasswordLogin.text.toString()
 
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter an email and password", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             Log.d("Login", "Attempt login with email/pw: $email, $password")
 
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Log.d("Login", "Login successful")
-
                         val intent = Intent(this, LatestMessagesActivity::class.java)
                         intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
@@ -38,8 +41,8 @@ class LoginActivity :AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener {
-                    Log.d("Login", "Login failure")
-                    Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Login failed: ${it.message}", Toast.LENGTH_LONG).show()
+                    textPasswordLogin.text.clear()
                 }
         }
     }
