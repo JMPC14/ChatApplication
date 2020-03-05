@@ -86,4 +86,15 @@
         app:layout_constraintStart_toStartOf="@+id/userImageProfileEdit"
         app:layout_constraintTop_toBottomOf="@+id/emailEdit" />
 
+    <TextView
+        android:id="@+id/changePasswordEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Change Password"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/emailEditText"
+        app:layout_constraintStart_toStartOf="@+id/emailEditText"
+        app:layout_constraintTop_toBottomOf="@+id/emailEditText" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

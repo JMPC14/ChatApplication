@@ -15,7 +15,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.constraintlayout.widget.Constraints
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -69,6 +71,12 @@ class ChatLogActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
+                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
+                if (enterMessageText.text.isNotEmpty()) {
+                    ref.child("typing").setValue(true)
+                } else {
+                    ref.child("typing").setValue(false)
+                }
             }
 
         })
@@ -192,6 +200,18 @@ class ChatLogActivity : AppCompatActivity() {
             }
 
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                if (p0.key == "typing") {
+                    if (p0.value == true) {
+                        userTypingIndicator.textSize = 14.toFloat()
+                        userTypingIndicator.visibility = View.VISIBLE
+                        userTypingIndicator.text = "${toUser!!.username} is typing..."
+                    }
+                    else if (p0.value != true) {
+                        userTypingIndicator.textSize = 0.toFloat()
+                        userTypingIndicator.visibility = View.INVISIBLE
+                    }
+                    return
+                }
                 if (p0.child("hidden").value == true) {
                     return
                 }
@@ -226,12 +246,23 @@ class ChatLogActivity : AppCompatActivity() {
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                if (p0.key!! == "typing") {
+                    if (p0.value == true) {
+                        userTypingIndicator.textSize = 14.toFloat()
+                        userTypingIndicator.visibility = View.VISIBLE
+                        userTypingIndicator.text = "${toUser!!.username} is typing..."
+                    }
+                    else if (p0.value != true) {
+                        userTypingIndicator.textSize = 0.toFloat()
+                        userTypingIndicator.visibility = View.INVISIBLE
+                    }
+                }
                 if (p0.child("hidden").exists()) {
                     if (FirebaseManager.hiddenPosition != null) {
                         adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
                         FirebaseManager.hiddenPosition = null
                     }
-                } else {
+                } else if (p0.key != "typing") {
                     listenForMessages()
                 }
             }

@@ -23,17 +23,17 @@ class RegisterActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        createAccount.setOnClickListener {
+        createAccountButtonRegister.setOnClickListener {
             performRegister()
         }
 
-        alreadyAccount.setOnClickListener {
+        alreadyAccountRegister.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             Log.d("Main", "Try to show login activity")
         }
 
-        selectPhoto.setOnClickListener {
+        selectPhotoRegister.setOnClickListener {
             Log.d("Main", "Try to show photo selector")
 
             val intent = Intent(Intent.ACTION_PICK)
@@ -55,7 +55,7 @@ class RegisterActivity : AppCompatActivity() {
 
             selectPhotoImageViewRegister.setImageBitmap(bitmap)
 
-            selectPhoto.alpha = 0f
+            selectPhotoRegister.alpha = 0f
         }
     }
 

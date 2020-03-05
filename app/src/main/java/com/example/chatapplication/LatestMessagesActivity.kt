@@ -200,7 +200,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
     }
 
-    fun listenForOnlineIndicators() {
+    private fun listenForOnlineIndicators() {
         val ref = FirebaseDatabase.getInstance().getReference("/online-users")
         ref.addChildEventListener(object: ChildEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -210,7 +210,10 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                if (FirebaseManager.contacts!!.contains(p0.key!!)) {
+                if (FirebaseManager.contacts == null) {
+                    return
+                }
+                else if (FirebaseManager.contacts!!.contains(p0.key!!)) {
                     refreshRecyclerViewMessages()
                 }
 //                if (p0.key!! == aUsername) {

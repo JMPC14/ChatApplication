@@ -16,7 +16,7 @@ class LoginActivity :AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        goBack.setOnClickListener {
+        goBackLogin.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 

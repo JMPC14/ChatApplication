@@ -57,7 +57,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="10dp"
-            android:text="Username"
             android:textColor="#FFFFFF"
             app:layout_constraintBottom_toBottomOf="@+id/userImageLatestMessages"
             app:layout_constraintEnd_toEndOf="parent"

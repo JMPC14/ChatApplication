@@ -11,15 +11,15 @@
         android:id="@+id/selectPhotoImageViewRegister"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="@+id/selectPhoto"
-        app:layout_constraintEnd_toEndOf="@+id/selectPhoto"
-        app:layout_constraintStart_toStartOf="@+id/selectPhoto"
-        app:layout_constraintTop_toTopOf="@+id/selectPhoto"
+        app:layout_constraintBottom_toBottomOf="@+id/selectPhotoRegister"
+        app:layout_constraintEnd_toEndOf="@+id/selectPhotoRegister"
+        app:layout_constraintStart_toStartOf="@+id/selectPhotoRegister"
+        app:layout_constraintTop_toTopOf="@+id/selectPhotoRegister"
         app:civ_border_width="4dp"
         app:civ_border_color="#FFFFFF"/>
 
     <Button
-        android:id="@+id/selectPhoto"
+        android:id="@+id/selectPhotoRegister"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="32dp"
@@ -44,7 +44,7 @@
         android:paddingLeft="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectPhoto" />
+        app:layout_constraintTop_toBottomOf="@+id/selectPhotoRegister" />
 
     <EditText
         android:id="@+id/textEmailRegister"
@@ -90,7 +90,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textPasswordRegister" />
 
     <Button
-        android:id="@+id/createAccount"
+        android:id="@+id/createAccountButtonRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -102,14 +102,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textPasswordRegisterConfirm" />
 
     <TextView
-        android:id="@+id/alreadyAccount"
+        android:id="@+id/alreadyAccountRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Already have an account?"
         android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="@+id/createAccount"
-        app:layout_constraintStart_toStartOf="@+id/createAccount"
-        app:layout_constraintTop_toBottomOf="@+id/createAccount" />
+        app:layout_constraintEnd_toEndOf="@+id/createAccountButtonRegister"
+        app:layout_constraintStart_toStartOf="@+id/createAccountButtonRegister"
+        app:layout_constraintTop_toBottomOf="@+id/createAccountButtonRegister" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

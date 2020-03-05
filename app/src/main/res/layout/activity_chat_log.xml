@@ -27,9 +27,8 @@
         android:id="@+id/recyclerChatLog"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="4dp"
         android:background="#00FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/enterMessageText"
+        app:layout_constraintBottom_toTopOf="@+id/userTypingIndicator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,6 +67,19 @@
         app:layout_constraintBottom_toBottomOf="@+id/enterMessageText"
         app:layout_constraintEnd_toEndOf="@id/enterMessageText"
         app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
+
+    <TextView
+        android:id="@+id/userTypingIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="User is typing..."
+        android:textColor="#000000"
+        android:textSize="0sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/enterMessageText"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/imageAttachedLayout"
