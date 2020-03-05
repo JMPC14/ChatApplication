@@ -41,10 +41,10 @@ class ProfileActivity : AppCompatActivity() {
     private fun displayOtherUser(otherUser: User) {
         supportActionBar?.title = otherUser.username
 
+        editProfile.isEnabled = false
+
         Picasso.get().load(otherUser.profileImageUrl).into(userImageProfile)
         usernameTextViewProfile.text = otherUser.username
         emailTextViewProfile.text = otherUser.email
-
-        editProfile.isEnabled = false
     }
 }

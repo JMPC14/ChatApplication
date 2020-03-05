@@ -28,10 +28,8 @@ class EditProfile : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-
         supportActionBar?.elevation = 0.toFloat()
         supportActionBar?.title = "Edit Profile"
-
 
         val uid = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
@@ -80,7 +78,6 @@ class EditProfile : AppCompatActivity() {
     }
 
     private var newPhotoUri: Uri? = null
-
     private var bitmap: Bitmap? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -276,7 +276,6 @@ class LatestMessagesActivity : AppCompatActivity() {
                 val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
                 onlineRef.setValue(false)
                 FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, LauncherActivity::class.java)
                 FirebaseManager.attachedFile = null
                 FirebaseManager.attachedFileSize = null
                 FirebaseManager.attachedFileType = null
@@ -284,6 +283,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 FirebaseManager.contacts = null
                 FirebaseManager.otherUser = null
                 FirebaseManager.user = null
+                val intent = Intent(this, LauncherActivity::class.java)
                 intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
             }

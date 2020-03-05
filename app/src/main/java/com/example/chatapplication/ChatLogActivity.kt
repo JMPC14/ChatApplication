@@ -148,9 +148,7 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     private var photoAttachmentUri: Uri? = null
-
     private var fileAttachmentUri: Uri? = null
-
     private var bitmap: Bitmap? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -200,7 +198,6 @@ class ChatLogActivity : AppCompatActivity() {
         val fromId = FirebaseAuth.getInstance().uid
         val toId = toUser?.uid
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
-
         ref.addChildEventListener(object : ChildEventListener {
             override fun onCancelled(p0: DatabaseError) {
             }
@@ -218,9 +215,11 @@ class ChatLogActivity : AppCompatActivity() {
                     }
                     return
                 }
+
                 if (p0.child("hidden").value == true) {
                     return
                 }
+
                 val chatMessage = p0.getValue(ChatMessage::class.java)
                 val currentUser = LatestMessagesActivity.currentUser!!
                 if (chatMessage != null) {
@@ -309,18 +308,11 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun performSendMessage() {
         val text = enterMessageText.text.toString()
-
         val fromId = FirebaseAuth.getInstance().uid ?: return
-
         val toId = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY).uid
-
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
-
-        val toRef =
-            FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
-
+        val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
-
         val time = System.currentTimeMillis() / 1000
 
         chatMessage = if (FirebaseManager.attachedImage != null) {
