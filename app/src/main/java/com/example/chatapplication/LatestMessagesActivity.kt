@@ -68,6 +68,8 @@ class LatestMessagesActivity : AppCompatActivity() {
 
         listenForLatestMessages()
 
+        listenForOnlineIndicators()
+
         fetchContacts()
     }
 
@@ -184,7 +186,6 @@ class LatestMessagesActivity : AppCompatActivity() {
             val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/$chatPartnerId")
             onlineRef.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
 
                 override fun onDataChange(p0: DataSnapshot) {
@@ -199,7 +200,38 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
     }
 
-    val adapter = GroupAdapter<GroupieViewHolder>()
+    fun listenForOnlineIndicators() {
+        val ref = FirebaseDatabase.getInstance().getReference("/online-users")
+        ref.addChildEventListener(object: ChildEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                if (FirebaseManager.contacts!!.contains(p0.key!!)) {
+                    refreshRecyclerViewMessages()
+                }
+//                if (p0.key!! == aUsername) {
+//                    if (p0.value!! == true) {
+//                        show indicator
+//                    }
+//                    if (p0.value!! == false) {
+//                        hide indicator
+//                    }
+//                }
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+            }
+        })
+    }
+
+    private val adapter = GroupAdapter<GroupieViewHolder>()
 
     private fun fetchCurrentUser() {
         val uid = FirebaseAuth.getInstance().uid
