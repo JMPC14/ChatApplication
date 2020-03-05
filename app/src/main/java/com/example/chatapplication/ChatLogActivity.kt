@@ -257,6 +257,7 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.textSize = 14.toFloat()
                         userTypingIndicator.visibility = View.VISIBLE
                         userTypingIndicator.text = "${toUser!!.username} is typing..."
+                        recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
                     }
                     else if (p0.value != true) {
                         userTypingIndicator.textSize = 0.toFloat()
@@ -649,7 +650,6 @@ class ChatLogActivity : AppCompatActivity() {
                 val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}")
                 ref.addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
-                        TODO("Not yet implemented")
                     }
 
                     override fun onDataChange(p0: DataSnapshot) {
