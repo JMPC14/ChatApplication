@@ -27,16 +27,42 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add_white_24dp" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/userImageLatestMessages"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/profileLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        app:civ_border_color="#000000"
-        app:civ_border_width="2dp"
+        android:background="@drawable/rounded_layout_profile_latest_messages"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:layout_constraintStart_toStartOf="@+id/recyclerLatestMessages">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/userImageLatestMessages"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            app:civ_border_color="#FFFFFF"
+            app:civ_border_width="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/btn_star_big_on" />
+
+        <TextView
+            android:id="@+id/usernameLatestMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="10dp"
+            android:text="Username"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/userImageLatestMessages"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/userImageLatestMessages"
+            app:layout_constraintTop_toTopOf="@+id/userImageLatestMessages" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

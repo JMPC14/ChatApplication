@@ -58,7 +58,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             startActivity(Intent(this, NewMessageActivity::class.java))
         }
 
-        userImageLatestMessages.setOnClickListener {
+        profileLayout.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
@@ -213,6 +213,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                     currentUser = p0.getValue(User::class.java)
                     FirebaseManager.user = currentUser
                     Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
+                    usernameLatestMessages.text = "${currentUser?.username}"
                     Log.d("LatestMessages", "Current user is ${currentUser?.username}")
 
                     val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
