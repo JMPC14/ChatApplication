@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ChangePasswordActivity"></activity>
         <activity android:name=".ForgotPasswordActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

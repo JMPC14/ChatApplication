@@ -52,6 +52,10 @@ class EditProfile : AppCompatActivity() {
             startActivityForResult(intent, 0)
         }
 
+        changePasswordEdit.setOnClickListener {
+            startActivity(Intent(this, ChangePasswordActivity::class.java))
+        }
+
         usernameEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
@@ -168,6 +172,7 @@ class EditProfile : AppCompatActivity() {
     private fun changeEmail(uid: String, newEmail: String) {
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid").child("email")
         FirebaseManager.user?.email = newEmail
+        FirebaseAuth.getInstance().currentUser!!.updateEmail(newEmail)
         ref.setValue(newEmail)
     }
 }
