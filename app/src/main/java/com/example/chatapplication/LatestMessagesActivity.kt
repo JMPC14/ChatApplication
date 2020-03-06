@@ -7,11 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -26,7 +24,6 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 import java.lang.Exception
@@ -100,7 +97,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             .putExtra(NOT_USER_KEY, chatUser)
 
-        val pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_ONE_SHOT)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         var myBitmap: Bitmap? = null
         Picasso.get().load(chatUser.profileImageUrl).into(object: com.squareup.picasso.Target {
@@ -195,14 +192,19 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-                val ref = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
-                ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                var key = p0.key.toString()
+                var keyValue = p0.child("displayed").value
+                val notRef = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
+                notRef.addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
                     }
 
                     override fun onDataChange(p0: DataSnapshot) {
                         val chatUser = p0.getValue(User::class.java)
-                        displayNotification(chatMessage, chatUser!!)
+                        if (keyValue != true) {
+                            displayNotification(chatMessage, chatUser!!)
+                        }
+                        ref.child(key).child("displayed").setValue(true)
                     }
                 })
             }
@@ -212,8 +214,8 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-                val ref = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
-                ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                val notRef2 = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
+                notRef2.addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
                     }
 
@@ -221,7 +223,8 @@ class LatestMessagesActivity : AppCompatActivity() {
                         val chatUser = p0.getValue(User::class.java)
                         displayNotification(chatMessage, chatUser!!)
                     }
-                })            }
+                })
+            }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
             }
