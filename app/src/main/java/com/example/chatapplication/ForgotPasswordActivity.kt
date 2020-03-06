@@ -16,9 +16,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
         supportActionBar?.title = null
 
         sendEmailForgotPassword.setOnClickListener {
-            val auth = FirebaseAuth.getInstance()
             if (textEmailForgotPassword.text.isNotEmpty()) {
-                auth.sendPasswordResetEmail(textEmailForgotPassword.text.toString()).addOnSuccessListener {
+                FirebaseAuth.getInstance().sendPasswordResetEmail(textEmailForgotPassword.text.toString()).addOnSuccessListener {
                     Toast.makeText(this, "Email sent", Toast.LENGTH_LONG).show()
                 }
                     .addOnFailureListener {
