@@ -20,6 +20,10 @@ class LoginActivity :AppCompatActivity() {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
+        forgottenPasswordLogin.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+        }
+
         loginButton.setOnClickListener {
             val email = textEmailLogin.text.toString()
             val password = textPasswordLogin.text.toString()

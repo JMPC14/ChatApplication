@@ -42,18 +42,6 @@ class LatestMessagesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_latest_messages)
 
-//        val uid = FirebaseAuth.getInstance().uid
-//        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-//        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onCancelled(p0: DatabaseError) {
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//                val user = p0.getValue(User::class.java)
-//                Picasso.get().load(user?.profileImageUrl).into(userProfileImage)
-//            }
-//        })
-
         supportActionBar?.title = "Latest Messages"
 
         recyclerLatestMessages.layoutManager = LinearLayoutManager(this)
