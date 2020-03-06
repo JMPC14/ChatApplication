@@ -16,6 +16,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +26,7 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 import java.lang.Exception
@@ -98,7 +101,6 @@ class LatestMessagesActivity : AppCompatActivity() {
             .putExtra(NOT_USER_KEY, chatUser)
 
         val pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
         var myBitmap: Bitmap? = null
         Picasso.get().load(chatUser.profileImageUrl).into(object: com.squareup.picasso.Target {
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
@@ -106,6 +108,9 @@ class LatestMessagesActivity : AppCompatActivity() {
 
             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
                 myBitmap = bitmap
+                val img = RoundedBitmapDrawableFactory.create(resources, myBitmap)
+                img.isCircular = true
+                myBitmap = img.toBitmap()
             }
 
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
