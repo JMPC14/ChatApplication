@@ -28,7 +28,7 @@ class ProfileActivity : AppCompatActivity() {
         supportActionBar?.title = "Profile"
 
         editProfile.setOnClickListener {
-            startActivity(Intent(this, EditProfile::class.java))
+            startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
         val user = FirebaseManager.user

@@ -11,7 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChangePasswordActivity"></activity>
+        <activity android:name=".ChangePasswordActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.chatapplication.EditProfileActivity" />
+        </activity>
         <activity android:name=".ForgotPasswordActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -27,7 +31,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.chatapplication.LatestMessagesActivity" />
         </activity>
-        <activity android:name=".EditProfile">
+        <activity android:name=".EditProfileActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.chatapplication.ProfileActivity" />
