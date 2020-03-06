@@ -64,7 +64,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         toUser = intent.getParcelableExtra(LatestMessagesActivity.NOT_USER_KEY)
 
-        if (toUser != null) {
+        if (toUser == null) {
             toUser = intent.getParcelableExtra(NewMessageActivity.USER_KEY)
         }
         FirebaseManager.otherUser = toUser
