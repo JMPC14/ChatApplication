@@ -214,6 +214,8 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
+                var key = p0.key.toString()
+                var keyValue = p0.child("displayed").value
                 val notRef2 = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
                 notRef2.addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
@@ -221,7 +223,10 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                     override fun onDataChange(p0: DataSnapshot) {
                         val chatUser = p0.getValue(User::class.java)
-                        displayNotification(chatMessage, chatUser!!)
+                        if (keyValue != true) {
+                            displayNotification(chatMessage, chatUser!!)
+                        }
+                        ref.child(key).child("displayed").setValue(true)
                     }
                 })
             }
