@@ -1,12 +1,23 @@
 package com.example.chatapplication
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -15,13 +26,16 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
+import java.lang.Exception
 
 class LatestMessagesActivity : AppCompatActivity() {
 
     companion object {
         var currentUser: User? = null
+        var NOT_USER_KEY = "NOT_USER_KEY"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +61,6 @@ class LatestMessagesActivity : AppCompatActivity() {
         recyclerLatestMessages.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         adapter.setOnItemClickListener { item, view ->
-            Log.d("LatestMessages", "123")
             val intent = Intent(this, ChatLogActivity::class.java)
             val row = item as LatestMessageRow
             intent.putExtra(NewMessageActivity.USER_KEY, row.chatPartnerUser)
@@ -72,6 +85,63 @@ class LatestMessagesActivity : AppCompatActivity() {
 
         fetchContacts()
     }
+
+    private val CHANNEL_ID = "chat_notifications"
+    private val CHANNEL_NAME = "Chat Channel"
+    private val NOTIFICATION_ID = 1
+
+    fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
+        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+            return
+        }
+        createNotificationChannel()
+
+        val notIntent = Intent(this, ChatLogActivity::class.java)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .putExtra(NOT_USER_KEY, chatUser)
+
+        val pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_ONE_SHOT)
+
+        var myBitmap: Bitmap? = null
+        Picasso.get().load(chatUser.profileImageUrl).into(object: com.squareup.picasso.Target {
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+            }
+
+            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                myBitmap = bitmap
+            }
+
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+            }
+        })
+
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.image_bird)
+            .setContentTitle(chatUser.username)
+            .setContentText(chatMessage.text)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setLargeIcon(myBitmap)
+
+        val notificationManagerCompat = NotificationManagerCompat.from(this)
+            .notify(NOTIFICATION_ID, builder.build())
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = CHANNEL_NAME
+            val descriptionText = "Description of channel"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+                .apply { description = descriptionText }
+
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+
 
     private fun fetchContacts() {
 
@@ -125,6 +195,16 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
+                val ref = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
+                ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError) {
+                    }
+
+                    override fun onDataChange(p0: DataSnapshot) {
+                        val chatUser = p0.getValue(User::class.java)
+                        displayNotification(chatMessage, chatUser!!)
+                    }
+                })
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
@@ -132,7 +212,16 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-            }
+                val ref = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
+                ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError) {
+                    }
+
+                    override fun onDataChange(p0: DataSnapshot) {
+                        val chatUser = p0.getValue(User::class.java)
+                        displayNotification(chatMessage, chatUser!!)
+                    }
+                })            }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
             }

@@ -62,7 +62,11 @@ class ChatLogActivity : AppCompatActivity() {
         recyclerChatLog.adapter = adapter
         recyclerChatLog.layoutManager = LinearLayoutManager(this)
 
-        toUser = intent.getParcelableExtra(NewMessageActivity.USER_KEY)
+        toUser = intent.getParcelableExtra(LatestMessagesActivity.NOT_USER_KEY)
+
+        if (toUser != null) {
+            toUser = intent.getParcelableExtra(NewMessageActivity.USER_KEY)
+        }
         FirebaseManager.otherUser = toUser
 
         supportActionBar?.title = toUser?.username

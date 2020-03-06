@@ -44,6 +44,7 @@ class NewMessageActivity : AppCompatActivity() {
                 }
             })
         }
+
         adapter.setOnItemClickListener { item, view ->
 
             val userItem = item as UserItem
