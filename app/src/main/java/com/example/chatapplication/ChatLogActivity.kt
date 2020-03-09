@@ -71,6 +71,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         supportActionBar?.title = toUser?.username
         supportActionBar?.elevation = 0.toFloat()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         enterMessageText.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -328,7 +329,10 @@ class ChatLogActivity : AppCompatActivity() {
     private fun performSendMessage() {
         val text = enterMessageText.text.toString()
         val fromId = FirebaseAuth.getInstance().uid ?: return
-        val toId = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY).uid
+        var toId = intent.getParcelableExtra<User>(LatestMessagesActivity.NOT_USER_KEY).uid
+        if (toId == null) {
+            toId = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY).uid
+        }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?

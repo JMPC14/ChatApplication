@@ -3,6 +3,7 @@ package com.example.chatapplication
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -23,6 +24,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
@@ -88,10 +90,12 @@ class LatestMessagesActivity : AppCompatActivity() {
         createNotificationChannel()
 
         val notIntent = Intent(this, ChatLogActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             .putExtra(NOT_USER_KEY, chatUser)
 
-        val pendingIntent = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = TaskStackBuilder.create(this)
+            .addNextIntentWithParentStack(notIntent)
+            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
         var myBitmap: Bitmap? = null
 
         Picasso.get().load(chatUser.profileImageUrl).into(object: com.squareup.picasso.Target {
