@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.iid.FirebaseInstanceId
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
@@ -157,23 +158,6 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
         })
     }
-
-//    private fun fetchContactSize() {
-//        var contacts: List<String> = listOf()
-//
-//        val uid = FirebaseAuth.getInstance().uid
-//        FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
-//            override fun onCancelled(p0: DatabaseError) {
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//                p0.children.forEach {
-//                    Log.d("Contacts", it.toString())
-//                    contacts = contacts.plus(it.value.toString())
-//                }
-//            }
-//        })
-//    }
 
     val latestMessageMap = HashMap<String, ChatLogActivity.ChatMessage>()
 
@@ -336,6 +320,10 @@ class LatestMessagesActivity : AppCompatActivity() {
     private val adapter = GroupAdapter<GroupieViewHolder>()
 
     private fun fetchCurrentUser() {
+        val token: String? = null
+        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
+            val token = it.result?.token
+        }
         val uid = FirebaseAuth.getInstance().uid
         if (uid != null) {
             val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
