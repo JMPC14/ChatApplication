@@ -244,7 +244,7 @@ class ChatLogActivity : AppCompatActivity() {
                         }
                     }
 
-                    else {
+                    else if (chatMessage.imageUrl != null) {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
                             adapter.add(ChatFromItemImage(chatMessage.id, chatMessage.text, currentUser, chatMessage.imageUrl!!))
                         } else {
@@ -268,6 +268,7 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.visibility = View.INVISIBLE
                     }
                 }
+
                 if (p0.child("hidden").exists()) {
                     if (FirebaseManager.hiddenPosition != null) {
                         adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)

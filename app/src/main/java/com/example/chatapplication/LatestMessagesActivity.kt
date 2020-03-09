@@ -26,7 +26,6 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
-import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 import java.lang.Exception
@@ -95,8 +94,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
 
             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                myBitmap = bitmap
-                val img = RoundedBitmapDrawableFactory.create(resources, myBitmap)
+                val img = RoundedBitmapDrawableFactory.create(resources, bitmap)
                 img.isCircular = true
                 myBitmap = img.toBitmap()
             }
@@ -374,7 +372,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 FirebaseManager.otherUser = null
                 FirebaseManager.user = null
                 val intent = Intent(this, LauncherActivity::class.java)
-                intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK) or (Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
             }
             R.id.user_contacts -> {

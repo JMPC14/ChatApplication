@@ -4,29 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4CAF50"
-    tools:context=".EditProfileActivity">
+    android:background="#4CAF50">
 
     <Button
         android:id="@+id/changePhoto"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_edit_photo_button"
         android:text="Change Photo"
         android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/userImageProfileEdit"
+        app:layout_constraintEnd_toEndOf="@+id/userImageProfileEdit"
+        app:layout_constraintStart_toStartOf="@+id/userImageProfileEdit"
+        app:layout_constraintTop_toTopOf="@+id/userImageProfileEdit" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/userImageProfileEdit"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="32dp"
         app:civ_border_color="#FFFFFF"
         app:civ_border_width="3dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/usernameEdit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/btn_star_big_on" />
@@ -36,15 +36,15 @@
         android:layout_width="275dp"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
+        android:layout_marginEnd="60dp"
         android:background="@drawable/rounded_text_profile_top"
         android:gravity="center_vertical"
         android:padding="12dp"
         android:text="Username"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/userImageProfileEdit"
-        app:layout_constraintStart_toStartOf="@+id/userImageProfileEdit"
-        app:layout_constraintTop_toBottomOf="@+id/userImageProfileEdit" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/usernameTextViewProfileEdit"
@@ -55,8 +55,9 @@
         android:padding="12dp"
         android:textColor="#4CAF50"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/userImageProfileEdit"
-        app:layout_constraintStart_toStartOf="@+id/userImageProfileEdit"
+
+        app:layout_constraintEnd_toEndOf="@+id/usernameEdit"
+        app:layout_constraintStart_toStartOf="@+id/usernameEdit"
         app:layout_constraintTop_toBottomOf="@+id/usernameEdit" />
 
     <TextView
@@ -69,8 +70,9 @@
         android:text="Email Address"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/userImageProfileEdit"
-        app:layout_constraintStart_toStartOf="@+id/userImageProfileEdit"
+
+        app:layout_constraintEnd_toEndOf="@+id/usernameTextViewProfileEdit"
+        app:layout_constraintStart_toStartOf="@+id/usernameTextViewProfileEdit"
         app:layout_constraintTop_toBottomOf="@+id/usernameTextViewProfileEdit" />
 
     <EditText
@@ -82,8 +84,8 @@
         android:padding="12dp"
         android:textColor="#4CAF50"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/userImageProfileEdit"
-        app:layout_constraintStart_toStartOf="@+id/userImageProfileEdit"
+
+        app:layout_constraintEnd_toEndOf="@+id/emailEdit"
         app:layout_constraintTop_toBottomOf="@+id/emailEdit" />
 
     <TextView

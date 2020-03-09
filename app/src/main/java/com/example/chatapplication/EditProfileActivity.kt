@@ -41,8 +41,8 @@ class EditProfileActivity : AppCompatActivity() {
                 val user = p0.getValue(User::class.java)
                 Picasso.get().load(user?.profileImageUrl).into(userImageProfileEdit)
 
-                usernameEditText.setText(user?.username)
-                emailEditText.setText(user?.email)
+                usernameTextViewProfileEdit.setText(user?.username)
+                emailTextViewProfileEdit.setText(user?.email)
             }
         })
 
@@ -56,7 +56,7 @@ class EditProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
 
-        usernameEditText.addTextChangedListener(object : TextWatcher {
+        usernameTextViewProfileEdit.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
@@ -68,7 +68,7 @@ class EditProfileActivity : AppCompatActivity() {
             }
         })
 
-        emailEditText.addTextChangedListener(object : TextWatcher {
+        emailTextViewProfileEdit.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
 
@@ -126,8 +126,8 @@ class EditProfileActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val item = menu?.findItem(R.id.save_profile)
-        val newName = usernameEditText.text.toString()
-        val newEmail = emailEditText.text.toString()
+        val newName = usernameTextViewProfileEdit.text.toString()
+        val newEmail = emailTextViewProfileEdit.text.toString()
 
         if  (newName != FirebaseManager.user?.username || newEmail != FirebaseManager.user?.email) {
             item?.isVisible = true
@@ -143,8 +143,8 @@ class EditProfileActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_profile -> {
-                val newUsername = usernameEditText.text.toString()
-                val newEmail = emailEditText.text.toString()
+                val newUsername = usernameTextViewProfileEdit.text.toString()
+                val newEmail = emailTextViewProfileEdit.text.toString()
                 val uid = FirebaseAuth.getInstance().uid!!
 
                 if (newEmail == FirebaseManager.user?.email) {
