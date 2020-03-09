@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="0dp"
     android:orientation="vertical">
 
     <TextView
@@ -17,17 +18,16 @@
         android:padding="8dp"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="This is a very long text message to test the length parameter test test test test test"
+        android:text="This is a test message"
         android:textColor="#000000"
-        app:layout_constraintStart_toEndOf="@+id/imageMessageTo"
-        app:layout_constraintTop_toTopOf="@+id/imageMessageTo" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageMessageTo" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imageMessageTo"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
         app:civ_border_color="#404D4D4D"
         app:civ_border_width="2dp"
         app:layout_constraintStart_toStartOf="parent"
