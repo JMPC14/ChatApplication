@@ -12,6 +12,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -24,6 +25,8 @@ import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
 
+    private val viewModel by lazy { ViewModelProvider(this)[EditProfileViewModel::class.java] }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
@@ -31,20 +34,27 @@ class EditProfileActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0.toFloat()
         supportActionBar?.title = "Edit Profile"
 
-        val uid = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError) {
-            }
+        if (savedInstanceState == null) {
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                }
 
-            override fun onDataChange(p0: DataSnapshot) {
-                val user = p0.getValue(User::class.java)
-                Picasso.get().load(user?.profileImageUrl).into(userImageProfileEdit)
-
-                usernameTextViewProfileEdit.setText(user?.username)
-                emailTextViewProfileEdit.setText(user?.email)
-            }
-        })
+                override fun onDataChange(p0: DataSnapshot) {
+                    val user = p0.getValue(User::class.java)
+                    Picasso.get().load(user?.profileImageUrl).into(userImageProfileEdit)
+                    viewModel.profileImageUrl = user!!.profileImageUrl
+                    usernameTextViewProfileEdit.setText(user.username)
+                    emailTextViewProfileEdit.setText(user.email)
+                }
+            })
+        } else {
+            viewModel.restoreState(savedInstanceState)
+            Picasso.get().load(viewModel.profileImageUrl).into(userImageProfileEdit)
+            usernameTextViewProfileEdit.setText(viewModel.usernameText)
+            emailTextViewProfileEdit.setText(viewModel.emailText)
+        }
 
         changePhoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
@@ -58,10 +68,12 @@ class EditProfileActivity : AppCompatActivity() {
 
         usernameTextViewProfileEdit.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                viewModel.usernameText = usernameTextViewProfileEdit.text.toString()
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 invalidateOptionsMenu()
+                viewModel.usernameText = usernameTextViewProfileEdit.text.toString()
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -73,10 +85,12 @@ class EditProfileActivity : AppCompatActivity() {
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                viewModel.emailText = emailTextViewProfileEdit.text.toString()
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 invalidateOptionsMenu()
+                viewModel.emailText = emailTextViewProfileEdit.text.toString()
             }
         })
     }
@@ -109,6 +123,7 @@ class EditProfileActivity : AppCompatActivity() {
                 val uid = FirebaseAuth.getInstance().uid
                 val databaseRef = FirebaseDatabase.getInstance().getReference("/users/$uid").child("profileImageUrl")
                 FirebaseManager.user?.profileImageUrl = it.toString()
+                viewModel.profileImageUrl = it.toString()
                 databaseRef.setValue(it.toString())
                 userImageProfileEdit.setImageBitmap((bitmap))
 //                databaseRef.addListenerForSingleValueEvent(object: ValueEventListener {
@@ -174,5 +189,10 @@ class EditProfileActivity : AppCompatActivity() {
         FirebaseManager.user?.email = newEmail
         FirebaseAuth.getInstance().currentUser!!.updateEmail(newEmail)
         ref.setValue(newEmail)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.saveState(outState)
     }
 }
