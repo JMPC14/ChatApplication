@@ -9,9 +9,9 @@ class EditProfileViewModel : ViewModel() {
     var emailText: String? = null
     var profileImageUrl: String? = null
 
-    val usernameTextName = "com.example.chatapplication.EditProfileViewModel.usernameText"
-    val emailTextName = "com.exmaple.chatapplication.EditProfileViewModel.emailText"
-    val profileImageUrlName = "com.example.chatapplication.EditProfileViewModel.profileImageUrl"
+    private val usernameTextName = "com.example.chatapplication.EditProfileViewModel.usernameText"
+    private val emailTextName = "com.exmaple.chatapplication.EditProfileViewModel.emailText"
+    private val profileImageUrlName = "com.example.chatapplication.EditProfileViewModel.profileImageUrl"
 
     fun saveState(outState: Bundle) {
         outState.putString(usernameTextName, usernameText)

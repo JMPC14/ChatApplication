@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -35,6 +36,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ChatLogActivity : AppCompatActivity() {
+
+    private val viewModel by lazy { ViewModelProvider(this)[ChatLogViewModel::class.java] }
 
     companion object {
         const val TAG = "ChatLog"
@@ -59,6 +62,21 @@ class ChatLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
+        if (savedInstanceState != null) {
+            viewModel.restoreState(savedInstanceState)
+            if (viewModel.photoAttachmentUri != null) {
+                Picasso.get().load(viewModel.photoAttachmentUri).into(imageAttachedImageView)
+                imageAttachedLayout.visibility = View.VISIBLE
+                sendMessageButton.isEnabled = true
+                photoAttachmentUri = viewModel.photoAttachmentUri
+            }
+            else if (viewModel.fileAttachmentUri != null) {
+                fileAttachedLayout.visibility = View.VISIBLE
+                sendMessageButton.isEnabled = true
+                fileAttachmentUri = viewModel.fileAttachmentUri
+            }
+        }
+
         recyclerChatLog.adapter = adapter
         recyclerChatLog.layoutManager = LinearLayoutManager(this)
 
@@ -75,15 +93,15 @@ class ChatLogActivity : AppCompatActivity() {
 
         enterMessageText.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
+                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || photoAttachmentUri != null || fileAttachmentUri != null
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
+                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || photoAttachmentUri != null || fileAttachmentUri != null
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || FirebaseManager.attachedImage != null || FirebaseManager.attachedFile != null
+                sendMessageButton.isEnabled = enterMessageText.text.isNotEmpty() || photoAttachmentUri != null || fileAttachmentUri != null
                 val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
                 if (enterMessageText.text.isNotEmpty()) {
                     ref.child("typing").setValue(true)
@@ -155,13 +173,12 @@ class ChatLogActivity : AppCompatActivity() {
 
     private var photoAttachmentUri: Uri? = null
     private var fileAttachmentUri: Uri? = null
-    private var bitmap: Bitmap? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
             photoAttachmentUri = data.data
-            bitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoAttachmentUri)
+            viewModel.photoAttachmentUri = data.data
             Picasso.get().load(photoAttachmentUri).into(imageAttachedImageView)
             imageAttachedLayout.visibility = View.VISIBLE
             sendMessageButton.isEnabled = true
@@ -169,6 +186,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
             fileAttachmentUri = data.data
+            viewModel.fileAttachmentUri = data.data
             fileAttachedLayout.visibility = View.VISIBLE
             sendMessageButton.isEnabled = true
         }
@@ -329,10 +347,7 @@ class ChatLogActivity : AppCompatActivity() {
     private fun performSendMessage() {
         val text = enterMessageText.text.toString()
         val fromId = FirebaseAuth.getInstance().uid ?: return
-        var toId = intent.getParcelableExtra<User>(LatestMessagesActivity.NOT_USER_KEY).uid
-        if (toId == null) {
-            toId = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY).uid
-        }
+        var toId = toUser!!.uid
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
@@ -708,5 +723,10 @@ class ChatLogActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.saveState(outState)
     }
 }
