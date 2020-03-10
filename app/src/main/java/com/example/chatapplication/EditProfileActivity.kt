@@ -50,7 +50,6 @@ class EditProfileActivity : AppCompatActivity() {
                 }
             })
         } else {
-            viewModel.restoreState(savedInstanceState)
             Picasso.get().load(viewModel.profileImageUrl).into(userImageProfileEdit)
             usernameTextViewProfileEdit.setText(viewModel.usernameText)
             emailTextViewProfileEdit.setText(viewModel.emailText)

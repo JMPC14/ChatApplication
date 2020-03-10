@@ -91,7 +91,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         createNotificationChannel()
 
         val notIntent = Intent(this, ChatLogActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             .putExtra(NOT_USER_KEY, chatUser)
 
         val pendingIntent = TaskStackBuilder.create(this)

@@ -2,6 +2,7 @@ package com.example.chatapplication
 
 import android.net.Uri
 import android.os.Bundle
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 
 class ChatLogViewModel : ViewModel() {
@@ -18,7 +19,7 @@ class ChatLogViewModel : ViewModel() {
     }
 
     fun restoreState(savedInstanceState: Bundle) {
-        photoAttachmentUri = Uri.parse(savedInstanceState.getString(photoAttachmentUriName))
-        fileAttachmentUri = Uri.parse(savedInstanceState.getString(fileAttachmentUriName))
+        photoAttachmentUri = savedInstanceState.getString(photoAttachmentUriName)!!.toUri()
+        fileAttachmentUri = savedInstanceState.getString(fileAttachmentUriName)!!.toUri()
     }
 }

@@ -63,7 +63,6 @@ class ChatLogActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat_log)
 
         if (savedInstanceState != null) {
-            viewModel.restoreState(savedInstanceState)
             if (viewModel.photoAttachmentUri != null) {
                 Picasso.get().load(viewModel.photoAttachmentUri).into(imageAttachedImageView)
                 imageAttachedLayout.visibility = View.VISIBLE
@@ -347,7 +346,7 @@ class ChatLogActivity : AppCompatActivity() {
     private fun performSendMessage() {
         val text = enterMessageText.text.toString()
         val fromId = FirebaseAuth.getInstance().uid ?: return
-        var toId = toUser!!.uid
+        val toId = toUser!!.uid
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
