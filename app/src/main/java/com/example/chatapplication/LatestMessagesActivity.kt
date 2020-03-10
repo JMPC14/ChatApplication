@@ -1,13 +1,9 @@
 package com.example.chatapplication
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.TaskStackBuilder
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.media.ThumbnailUtils
 import android.os.Build
@@ -19,12 +15,11 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
@@ -32,7 +27,6 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
-import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 import java.lang.Exception
@@ -42,6 +36,8 @@ class LatestMessagesActivity : AppCompatActivity() {
     companion object {
         var currentUser: User? = null
         var NOT_USER_KEY = "NOT_USER_KEY"
+        var NOTIFICATION_REPLY_KEY = "Text"
+        var NOTIFICATION_ID = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +78,6 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private val CHANNEL_ID = "chat_notifications"
     private val CHANNEL_NAME = "Chat Channel"
-    private val NOTIFICATION_ID = 1
 
     fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
@@ -132,6 +127,16 @@ class LatestMessagesActivity : AppCompatActivity() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setLargeIcon(myBitmap)
+
+        val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+
+        val replyIntent = Intent(this, ChatLogActivity::class.java)
+            .putExtra(NOT_USER_KEY, chatUser)
+        val replyPendingIntent = PendingIntent.getActivity(this, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
+
+        builder.addAction(action)
 
         val notificationManagerCompat = NotificationManagerCompat.from(this)
             .notify(NOTIFICATION_ID, builder.build())

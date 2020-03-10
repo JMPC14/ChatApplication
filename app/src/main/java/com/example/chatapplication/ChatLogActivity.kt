@@ -1,12 +1,12 @@
 package com.example.chatapplication
 
 import android.app.Activity
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.app.RemoteInput
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -61,6 +62,19 @@ class ChatLogActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
+
+        val remoteReply = RemoteInput.getResultsFromIntent(intent)
+
+        if (remoteReply != null) {
+            val message = remoteReply.getCharSequence(LatestMessagesActivity.NOTIFICATION_REPLY_KEY) as String
+            FirebaseManager.notificationTempMessage = message
+            toUser = intent.getParcelableExtra(LatestMessagesActivity.NOT_USER_KEY)
+            performSendMessage()
+            FirebaseManager.notificationTempMessage = null
+
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.cancel(LatestMessagesActivity.NOTIFICATION_ID)
+        }
 
         if (savedInstanceState != null) {
             if (viewModel.photoAttachmentUri != null) {
@@ -346,7 +360,12 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     private fun performSendMessage() {
-        val text = enterMessageText.text.toString()
+        val text = if (FirebaseManager.notificationTempMessage != null) {
+            FirebaseManager.notificationTempMessage
+        } else {
+            enterMessageText.text.toString()
+        }
+
         val fromId = FirebaseAuth.getInstance().uid ?: return
         val toId = toUser!!.uid
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
@@ -359,13 +378,31 @@ class ChatLogActivity : AppCompatActivity() {
         val hour = LocalDateTime.now().hour
         val minute = LocalDateTime.now().minute
 
-        chatMessage = if (FirebaseManager.attachedImage != null) {
-            ChatMessage(ref.key!!, text, fromId, toId, timestamp, FirebaseManager.attachedImage!!)
-        } else if (FirebaseManager.attachedFile != null) {
-            ChatMessage(ref.key!!, text, fromId, toId, timestamp , FirebaseManager.attachedFile!!, FirebaseManager.attachedFileSize!!, FirebaseManager.attachedFileType!!)
-        } else {
-            ChatMessage(ref.key!!, text, fromId, toId, timestamp)
-        }
+        if (text != null) {
+
+            chatMessage = if (FirebaseManager.attachedImage != null) {
+                ChatMessage(
+                    ref.key!!,
+                    text,
+                    fromId,
+                    toId,
+                    timestamp,
+                    FirebaseManager.attachedImage!!
+                )
+            } else if (FirebaseManager.attachedFile != null) {
+                ChatMessage(
+                    ref.key!!,
+                    text,
+                    fromId,
+                    toId,
+                    timestamp,
+                    FirebaseManager.attachedFile!!,
+                    FirebaseManager.attachedFileSize!!,
+                    FirebaseManager.attachedFileType!!
+                )
+            } else {
+                ChatMessage(ref.key!!, text, fromId, toId, timestamp)
+            }
 
             ref.setValue(chatMessage)
                 .addOnSuccessListener {
@@ -384,12 +421,13 @@ class ChatLogActivity : AppCompatActivity() {
                 FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
             latestMessageToRef.setValue(chatMessage)
 
-        FirebaseManager.attachedImage = null
-        FirebaseManager.attachedFile = null
-        FirebaseManager.attachedFileSize = null
-        imageAttachedLayout.visibility = View.INVISIBLE
-        fileAttachedLayout.visibility = View.INVISIBLE
-        sendMessageButton.isEnabled = false
+            FirebaseManager.attachedImage = null
+            FirebaseManager.attachedFile = null
+            FirebaseManager.attachedFileSize = null
+            imageAttachedLayout.visibility = View.INVISIBLE
+            fileAttachedLayout.visibility = View.INVISIBLE
+            sendMessageButton.isEnabled = false
+        }
     }
 
     class ChatFromItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {

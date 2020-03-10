@@ -9,4 +9,5 @@ object FirebaseManager {
     var attachedFileSize: Double? = null
     var attachedFileType: String? = null
     var hiddenPosition: Int? = null
+    var notificationTempMessage: String? = null
 }
