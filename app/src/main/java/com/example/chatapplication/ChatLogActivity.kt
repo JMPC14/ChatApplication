@@ -309,6 +309,7 @@ class ChatLogActivity : AppCompatActivity() {
                         }
                     }
                     recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+                    FirebaseManager.latestMessageSeen = chatMessage.id
                 }
             }
 
@@ -330,8 +331,10 @@ class ChatLogActivity : AppCompatActivity() {
                     if (FirebaseManager.hiddenPosition != null) {
                         adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
                         FirebaseManager.hiddenPosition = null
+                        adapter.notifyDataSetChanged()
                     }
                 } else if (p0.key != "typing") {
+                    adapter.clear()
                     listenForMessages()
                 }
             }
@@ -418,7 +421,7 @@ class ChatLogActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     Log.d(TAG, "Saved chat message: ${ref.key}")
                     enterMessageText.text.clear()
-                    recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+                    recyclerChatLog.scrollToPosition(adapter.itemCount)
                 }
 
             toRef.setValue(chatMessage)
