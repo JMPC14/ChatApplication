@@ -48,6 +48,16 @@ class ChatLogActivity : AppCompatActivity() {
     val adapter = GroupAdapter<GroupieViewHolder>()
     var toUser: User? = null
 
+    override fun onResume() {
+        super.onResume()
+        FirebaseManager.ignoreNotification = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        FirebaseManager.ignoreNotification = false
+    }
+
     override fun onStop() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
         ref.child("typing").setValue(false)

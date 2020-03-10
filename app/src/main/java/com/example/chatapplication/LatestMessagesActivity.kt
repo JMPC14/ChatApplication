@@ -80,7 +80,7 @@ class LatestMessagesActivity : AppCompatActivity() {
     private val CHANNEL_NAME = "Chat Channel"
 
     fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
-        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+        if (chatMessage.fromId == FirebaseAuth.getInstance().uid || FirebaseManager.ignoreNotification == true) {
             return
         }
         createNotificationChannel()
