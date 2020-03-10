@@ -114,10 +114,20 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
         })
 
+        var text: String? = null
+
+        if (chatMessage.text.isEmpty() && chatMessage.imageUrl != null) {
+            text = "${chatUser.username} sent an image"
+        } else if (chatMessage.text.isEmpty() && chatMessage.fileUrl != null) {
+            text = "${chatUser.username} sent a file"
+        } else if (chatMessage.text.isNotEmpty()) {
+            text = chatMessage.text
+        }
+
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.image_bird)
             .setContentTitle(chatUser.username)
-            .setContentText(chatMessage.text)
+            .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

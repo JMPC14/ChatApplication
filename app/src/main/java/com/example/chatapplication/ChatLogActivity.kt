@@ -254,8 +254,10 @@ class ChatLogActivity : AppCompatActivity() {
                         val test = adapter.getItem(adapter.itemCount - 1)
                         if (test.layout == R.layout.chat_message_from || test.layout == R.layout.chat_message_from_image || test.layout == R.layout.chat_message_from_file || test.layout == R.layout.chat_message_from_sequential) {
                             sequentialFrom = true
+                            sequentialTo = false
                         } else if (test.layout == R.layout.chat_message_to || test.layout == R.layout.chat_message_to_image || test.layout == R.layout.chat_message_to_file || test.layout == R.layout.chat_message_to_sequential) {
                             sequentialTo = true
+                            sequentialFrom = false
                         }
                     }
 
