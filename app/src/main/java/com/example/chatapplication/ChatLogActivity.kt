@@ -194,20 +194,25 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     private fun updateLatestMessageSeen() {
-        val test = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1)
-        if (test.layout == R.layout.chat_message_to || test.layout == R.layout.chat_message_to_sequential) {
-            val itemTo = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItem
-            FirebaseManager.latestMessageSeen = itemTo.chatMessage.id
-        } else if (test.layout == R.layout.chat_message_to_image) {
-            val itemToImage = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemImage
-            FirebaseManager.latestMessageSeen = itemToImage.chatMessage.id
-        } else if (test.layout == R.layout.chat_message_to_file) {
-            val itemToFile = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemFile
-            FirebaseManager.latestMessageSeen = itemToFile.chatMessage.id
-        }
-        if (FirebaseManager.latestMessageSeen != null) {
-            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
-            ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
+        if (adapter.itemCount != 0) {
+            val test = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1)
+            if (test.layout == R.layout.chat_message_to || test.layout == R.layout.chat_message_to_sequential) {
+                val itemTo = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItem
+                FirebaseManager.latestMessageSeen = itemTo.chatMessage.id
+            } else if (test.layout == R.layout.chat_message_to_image) {
+                val itemToImage =
+                    adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemImage
+                FirebaseManager.latestMessageSeen = itemToImage.chatMessage.id
+            } else if (test.layout == R.layout.chat_message_to_file) {
+                val itemToFile =
+                    adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemFile
+                FirebaseManager.latestMessageSeen = itemToFile.chatMessage.id
+            }
+            if (FirebaseManager.latestMessageSeen != null) {
+                val ref = FirebaseDatabase.getInstance()
+                    .getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
+                ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
+            }
         }
         super.onPause()
     }
@@ -289,6 +294,7 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (p0.key == "latestMessageSeen") {
                     FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
+                    adapter.notifyDataSetChanged()
                     return
                 }
 
