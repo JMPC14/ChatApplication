@@ -53,6 +53,9 @@ class LatestMessagesActivity : AppCompatActivity() {
         adapter.setOnItemClickListener { item, view ->
             val intent = Intent(this, ChatLogActivity::class.java)
             val row = item as LatestMessageRow
+            if (row.chatPartnerUser == null) {
+                return@setOnItemClickListener
+            }
             intent.putExtra(NewMessageActivity.USER_KEY, row.chatPartnerUser)
             startActivity(intent)
         }

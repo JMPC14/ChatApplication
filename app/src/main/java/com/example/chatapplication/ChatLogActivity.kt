@@ -61,7 +61,6 @@ class ChatLogActivity : AppCompatActivity() {
     override fun onStop() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
         ref.child("typing").setValue(false)
-        FirebaseManager.otherUser = null
         FirebaseManager.attachedImage = null
         FirebaseManager.attachedFile = null
         FirebaseManager.attachedFileSize = null
@@ -315,7 +314,7 @@ class ChatLogActivity : AppCompatActivity() {
                         }
                     }
                     recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
-                    FirebaseManager.latestMessageSeen = chatMessage.id
+                    recyclerChatLog.adapter = adapter
                 }
             }
 
@@ -325,7 +324,6 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.textSize = 14.toFloat()
                         userTypingIndicator.visibility = View.VISIBLE
                         userTypingIndicator.text = "${toUser!!.username} is typing..."
-                        recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
                     }
                     else if (p0.value != true) {
                         userTypingIndicator.textSize = 0.toFloat()
@@ -333,16 +331,17 @@ class ChatLogActivity : AppCompatActivity() {
                     }
                 }
 
-                if (p0.child("hidden").exists()) {
-                    if (FirebaseManager.hiddenPosition != null) {
-                        adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
-                        FirebaseManager.hiddenPosition = null
-                        adapter.notifyDataSetChanged()
-                    }
-                } else if (p0.key != "typing") {
-                    adapter.clear()
-                    listenForMessages()
-                }
+//                if (p0.child("hidden").exists()) {
+//                    if (FirebaseManager.hiddenPosition != null) {
+//                        adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
+//                        FirebaseManager.hiddenPosition = null
+//                        adapter.notifyDataSetChanged()
+//                    }
+//                    adapter.notifyDataSetChanged()
+//                } else if (p0.key != "typing") {
+//                    adapter.notifyDataSetChanged()
+//                }
+                adapter.notifyDataSetChanged()
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -463,9 +462,10 @@ class ChatLogActivity : AppCompatActivity() {
                 pop.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.hide_message -> {
+                            viewHolder.itemView.layoutParams.height = 0
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
-                            ref.child("hidden").setValue(true)
                             FirebaseManager.hiddenPosition = position
+                            ref.child("hidden").setValue(true)
                         }
                     }
                     true
@@ -517,9 +517,10 @@ class ChatLogActivity : AppCompatActivity() {
                 pop.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.hide_message -> {
+                            viewHolder.itemView.layoutParams.height = 0
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
-                            ref.child("hidden").setValue(true)
                             FirebaseManager.hiddenPosition = position
+                            ref.child("hidden").setValue(true)
                         }
                     }
                     true
@@ -582,6 +583,7 @@ class ChatLogActivity : AppCompatActivity() {
                 pop.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.hide_message -> {
+                            viewHolder.itemView.layoutParams.height = 0
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             ref.child("hidden").setValue(true)
                             FirebaseManager.hiddenPosition = position
@@ -638,6 +640,7 @@ class ChatLogActivity : AppCompatActivity() {
                 pop.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.hide_message -> {
+                            viewHolder.itemView.layoutParams.height = 0
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             ref.child("hidden").setValue(true)
                             FirebaseManager.hiddenPosition = position
@@ -688,6 +691,7 @@ class ChatLogActivity : AppCompatActivity() {
                 pop.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.hide_message -> {
+                            viewHolder.itemView.layoutParams.height = 0
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             ref.child("hidden").setValue(true)
                             FirebaseManager.hiddenPosition = position
@@ -743,6 +747,7 @@ class ChatLogActivity : AppCompatActivity() {
                 pop.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.hide_message -> {
+                            viewHolder.itemView.layoutParams.height = 0
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             ref.child("hidden").setValue(true)
                             FirebaseManager.hiddenPosition = position
@@ -776,6 +781,8 @@ class ChatLogActivity : AppCompatActivity() {
                                     ref.child(it.key.toString()).child("hidden").removeValue()
                             }
                         }
+                        adapter.clear()
+                        listenForMessages()
                     }
                 })
             }

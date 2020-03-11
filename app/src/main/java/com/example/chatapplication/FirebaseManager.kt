@@ -12,4 +12,5 @@ object FirebaseManager {
     var notificationTempMessage: String? = null
     var ignoreNotification: Boolean? = null
     var latestMessageSeen: String? = null
+    var tempHide: Boolean? = null
 }
