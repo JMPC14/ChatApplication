@@ -9,7 +9,6 @@ object FirebaseManager {
     var attachedFileSize: Double? = null
     var attachedFileType: String? = null
     var notificationTempMessage: String? = null
-    var ignoreNotification: Boolean? = null
+    var ignoreNotificationUid: String? = null
     var latestMessageSeen: String? = null
-    var tempHide: Boolean? = null
 }

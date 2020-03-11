@@ -50,12 +50,12 @@ class ChatLogActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        FirebaseManager.ignoreNotification = true
+        FirebaseManager.ignoreNotificationUid = toUser!!.uid
     }
 
     override fun onPause() {
+        FirebaseManager.ignoreNotificationUid = null
         super.onPause()
-        FirebaseManager.ignoreNotification = false
     }
 
     override fun onStop() {
