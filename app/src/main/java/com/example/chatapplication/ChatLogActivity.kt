@@ -34,6 +34,7 @@ import kotlinx.android.synthetic.main.chat_message_to.view.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
 import java.time.LocalDateTime
+import java.time.format.TextStyle
 import java.util.*
 
 class ChatLogActivity : AppCompatActivity() {
@@ -377,11 +378,11 @@ class ChatLogActivity : AppCompatActivity() {
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
         val year = LocalDateTime.now().year
-        val month = LocalDateTime.now().month
+        val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
         val date = LocalDateTime.now().dayOfMonth
         val hour = LocalDateTime.now().hour
         val minute = LocalDateTime.now().minute
-        val timestamp = "$hour:$minute"
+        val timestamp = "$date $month, $hour:$minute"
 
         if (text != null) {
 
