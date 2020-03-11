@@ -418,7 +418,6 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.visibility = View.INVISIBLE
                     }
                 }
-                adapter.notifyDataSetChanged()
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -525,7 +524,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    class ChatFromItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageFrom.text = text
@@ -543,6 +542,8 @@ class ChatLogActivity : AppCompatActivity() {
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             FirebaseManager.hiddenPosition = position
                             ref.child("hidden").setValue(true)
+                            adapter.clear()
+                            refreshAdapter()
                         }
                     }
                     true
@@ -561,7 +562,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    class ChatToItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageTo.text = text
@@ -598,6 +599,8 @@ class ChatLogActivity : AppCompatActivity() {
                             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             FirebaseManager.hiddenPosition = position
                             ref.child("hidden").setValue(true)
+                            adapter.clear()
+                            refreshAdapter()
                         }
                     }
                     true
