@@ -537,17 +537,17 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            viewHolder.itemView.textMessageFromImage.text = chatMessage.text
+            if (chatMessage.text.isNotEmpty()) {
+                viewHolder.itemView.textMessageFromImage.text = chatMessage.text
+            } else {
+                viewHolder.itemView.textMessageFromImage.height = 0
+            }
             viewHolder.itemView.timestampMessageFromImage.text = chatMessage.timestamp.toString()
             val imageMessage = viewHolder.itemView.imageMessageFromImage
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromImage)
             }
             Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
-
-            if (chatMessage.text.isEmpty()) {
-                viewHolder.itemView.textMessageFromImage.height = 0
-            }
 
             viewHolder.itemView.imageMessageFromImage.setOnClickListener {
                 val pop = PopupMenu(it.context, it)
@@ -593,7 +593,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            viewHolder.itemView.textMessageToImage.text = chatMessage.text
+            if (chatMessage.text.isNotEmpty()) {
+                viewHolder.itemView.textMessageToImage.text = chatMessage.text
+            } else {
+                viewHolder.itemView.textMessageToImage.height = 0
+            }
             viewHolder.itemView.timestampMessageToImage.text = chatMessage.timestamp.toString()
             val imageMessage = viewHolder.itemView.imageMessageToImage
             if (!sequential) {
@@ -603,10 +607,6 @@ class ChatLogActivity : AppCompatActivity() {
 
             if (sequential) {
                 viewHolder.itemView.imageToImage.visibility = View.INVISIBLE
-            }
-
-            if (chatMessage.text.isEmpty()) {
-                viewHolder.itemView.textMessageToImage.height = 0
             }
 
             viewHolder.itemView.imageMessageToImage.setOnClickListener {
@@ -659,6 +659,11 @@ class ChatLogActivity : AppCompatActivity() {
                 viewHolder.itemView.fileSizeFromFile.text = "${chatMessage.fileSize}kB"
             }
 
+            if (chatMessage.text.isNotEmpty()) {
+                viewHolder.itemView.textMessageFromFile.text = chatMessage.text
+            } else {
+                viewHolder.itemView.textMessageFromFile.height = 0
+            }
             viewHolder.itemView.fileTypeFromFile.text = chatMessage.fileType
             viewHolder.itemView.textMessageFromFile.text = chatMessage.text
             viewHolder.itemView.timestampMessageFromFile.text = chatMessage.timestamp.toString()
@@ -666,10 +671,6 @@ class ChatLogActivity : AppCompatActivity() {
 
             if (sequential) {
                 viewHolder.itemView.imageFromFile.visibility = View.INVISIBLE
-            }
-
-            if (chatMessage.text.isEmpty()) {
-                viewHolder.itemView.textMessageFromFile.height = 0
             }
 
             viewHolder.itemView.imageMessageFromFile.setOnClickListener {
@@ -718,17 +719,17 @@ class ChatLogActivity : AppCompatActivity() {
                 viewHolder.itemView.fileSizeToFile.text = "${chatMessage.fileSize}kB"
             }
 
+            if (chatMessage.text.isNotEmpty()) {
+                viewHolder.itemView.textMessageToFile.text = chatMessage.text
+            } else {
+                viewHolder.itemView.textMessageToFile.height = 0
+            }
             viewHolder.itemView.fileTypeToFile.text = chatMessage.fileType
-            viewHolder.itemView.textMessageToFile.text = chatMessage.text
             viewHolder.itemView.timestampMessageToFile.text = chatMessage.timestamp.toString()
             Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToFile)
 
             if (sequential) {
                 viewHolder.itemView.imageToFile.visibility = View.INVISIBLE
-            }
-
-            if (chatMessage.text.isEmpty()) {
-                viewHolder.itemView.textMessageToFile.height = 0
             }
 
             viewHolder.itemView.imageMessageToFile.setOnClickListener {
