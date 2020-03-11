@@ -12,4 +12,5 @@ object FirebaseManager {
     var ignoreNotificationUid: String? = null
     var latestMessageSeen: String? = null
     var latestMessageOtherUserSeen: String? = null
+    var testForCommit: String? = null
 }
