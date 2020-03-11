@@ -32,6 +32,7 @@
         android:text="Read"
         android:textColor="#8C8C8C"
         android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textMessageFrom" />
 

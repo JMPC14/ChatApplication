@@ -98,6 +98,8 @@
         android:layout_marginEnd="4dp"
         android:text="Read"
         android:textColor="#8C8C8C"
+        android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/constraintLayoutFromFile"
         app:layout_constraintEnd_toStartOf="@+id/constraintLayoutFromFile" />
 

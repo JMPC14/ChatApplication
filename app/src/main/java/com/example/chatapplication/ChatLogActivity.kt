@@ -193,6 +193,28 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateLatestMessageSeen() {
+        val test = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1)
+        var itemTo: ChatToItem?
+        var itemFrom: ChatFromItem?
+        if (test.layout == R.layout.chat_message_to || test.layout == R.layout.chat_message_to_sequential) {
+            itemTo = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItem
+            FirebaseManager.latestMessageSeen = itemTo.chatMessage.id
+        } else if (test.layout == R.layout.chat_message_from || test.layout == R.layout.chat_message_from_sequential) {
+            itemFrom = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatFromItem
+            FirebaseManager.latestMessageSeen = itemFrom.chatMessage.id
+        }
+        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
+        ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
+        super.onPause()
+    }
+
+    override fun onUserInteraction() {
+        updateLatestMessageSeen()
+        super.onUserInteraction()
+
+    }
+
     private var photoAttachmentUri: Uri? = null
     private var fileAttachmentUri: Uri? = null
 
@@ -259,6 +281,11 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.textSize = 0.toFloat()
                         userTypingIndicator.visibility = View.INVISIBLE
                     }
+                    return
+                }
+
+                if (p0.key == "latestMessageSeen") {
+                    FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
                     return
                 }
 
@@ -330,6 +357,12 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.visibility = View.INVISIBLE
                     }
                 }
+
+                if (p0.key!! == "latestMessageSeen") {
+                    FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
+                    adapter.clear()
+                    listenForMessages()
+                }
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -382,7 +415,13 @@ class ChatLogActivity : AppCompatActivity() {
         val date = LocalDateTime.now().dayOfMonth
         val hour = LocalDateTime.now().hour
         val minute = LocalDateTime.now().minute
-        val timestamp = "$date $month, $hour:$minute"
+        val newMinute: String?
+        newMinute = if (minute < 10) {
+            "0 $minute"
+        } else {
+            minute.toString()
+        }
+        val timestamp = "$date $month, $hour:$newMinute"
 
         if (text != null) {
 
@@ -439,6 +478,9 @@ class ChatLogActivity : AppCompatActivity() {
     inner class ChatFromItem(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+            if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
+                viewHolder.itemView.messageSeen.visibility = View.VISIBLE
+            }
             viewHolder.itemView.textMessageFrom.text = chatMessage.text
             viewHolder.itemView.timestampMessageFrom.text = chatMessage.timestamp.toString()
             if (!sequential) {
