@@ -549,6 +549,11 @@ class ChatLogActivity : AppCompatActivity() {
                                 viewHolder.itemView.context.startActivity(intent)
                             }
                             R.id.block_user -> {
+                                if (FirebaseManager.blocklist != null) {
+                                    FirebaseManager.blocklist!!.add(user.uid)
+                                    val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                    ref.setValue(FirebaseManager.blocklist)
+                                }
                             }
                         }
                         true
@@ -679,6 +684,13 @@ class ChatLogActivity : AppCompatActivity() {
                             val builder = CustomTabsIntent.Builder()
                             val customTabsIntent = builder.build()
                             customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(chatMessage.imageUrl))
+                        }
+                        R.id.block_user -> {
+                            if (FirebaseManager.blocklist != null) {
+                                FirebaseManager.blocklist!!.add(user.uid)
+                                val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                ref.setValue(FirebaseManager.blocklist)
+                            }
                         }
                     }
                     true
@@ -815,6 +827,13 @@ class ChatLogActivity : AppCompatActivity() {
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
+                        }
+                        R.id.block_user -> {
+                            if (FirebaseManager.blocklist != null) {
+                                FirebaseManager.blocklist!!.add(user.uid)
+                                val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                ref.setValue(FirebaseManager.blocklist)
+                            }
                         }
                     }
                     true
