@@ -77,6 +77,8 @@ class LatestMessagesActivity : AppCompatActivity() {
         listenForOnlineIndicators()
 
         fetchContacts()
+
+        fetchBlocklist()
     }
 
     private val CHANNEL_ID = "chat_notifications"
@@ -171,6 +173,21 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
+    private fun fetchBlocklist() {
+        val uid = FirebaseAuth.getInstance().uid
+        FirebaseDatabase.getInstance().getReference("/users/$uid/blocklist").addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                FirebaseManager.blocklist = mutableListOf()
+                p0.children.forEach {
+                    FirebaseManager.blocklist?.add(it.value.toString())
+                }
+            }
+        })
+    }
+
     val latestMessageMap = HashMap<String, ChatLogActivity.ChatMessage>()
 
     private fun refreshRecyclerViewMessages() {
@@ -187,6 +204,12 @@ class LatestMessagesActivity : AppCompatActivity() {
 
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatLogActivity.ChatMessage::class.java) ?: return
+
+                if (FirebaseManager.blocklist != null ) {
+                    if (FirebaseManager.blocklist!!.contains(chatMessage.fromId)) {
+                        return
+                    }
+                }
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
@@ -388,6 +411,9 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
             R.id.user_contacts -> {
                 startActivity(Intent(this, ContactsActivity::class.java))
+            }
+            R.id.user_blocklist -> {
+                startActivity(Intent(this, BlocklistActivity::class.java))
             }
         }
         return super.onOptionsItemSelected(item)

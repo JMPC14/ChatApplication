@@ -11,43 +11,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChangePasswordActivity"
-            android:parentActivityName=".EditProfileActivity">
-        </activity>
-
-        <activity android:name=".ForgotPasswordActivity"
-            android:parentActivityName=".LoginActivity">
-        </activity>
-
-        <activity android:name=".NewContactActivity"
-            android:parentActivityName=".ContactsActivity">
-        </activity>
-
-        <activity android:name=".ContactsActivity"
-            android:parentActivityName=".LatestMessagesActivity">
-        </activity>
-
-        <activity android:name=".EditProfileActivity"
-            android:parentActivityName=".ProfileActivity">
-        </activity>
-
-        <activity android:name=".ProfileActivity"
-            android:parentActivityName=".LatestMessagesActivity">
-        </activity>
-
+        <activity android:name=".BlocklistActivity"></activity>
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:parentActivityName=".EditProfileActivity"></activity>
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:parentActivityName=".LoginActivity"></activity>
+        <activity
+            android:name=".NewContactActivity"
+            android:parentActivityName=".ContactsActivity"></activity>
+        <activity
+            android:name=".ContactsActivity"
+            android:parentActivityName=".LatestMessagesActivity"></activity>
+        <activity
+            android:name=".EditProfileActivity"
+            android:parentActivityName=".ProfileActivity"></activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:parentActivityName=".LatestMessagesActivity"></activity>
         <activity android:name=".LauncherActivity" />
-
-        <activity android:name=".ChatLogActivity"
+        <activity
+            android:name=".ChatLogActivity"
             android:parentActivityName=".LatestMessagesActivity">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".NewMessageActivity"
-            android:parentActivityName=".LatestMessagesActivity">
-        </activity>
-
+        <activity
+            android:name=".NewMessageActivity"
+            android:parentActivityName=".LatestMessagesActivity"></activity>
         <activity android:name=".LatestMessagesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,9 +48,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".LoginActivity" />
-
         <activity android:name=".RegisterActivity" />
     </application>
 

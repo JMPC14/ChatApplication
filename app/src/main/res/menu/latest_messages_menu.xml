@@ -8,6 +8,9 @@
     <item
         android:id="@+id/user_contacts"
         android:title="Contacts" />
+    <item
+        android:id="@+id/user_blocklist"
+        android:title="Blocked Users" />
     <item android:id="@+id/sign_out"
         android:title="Sign Out"/>
 

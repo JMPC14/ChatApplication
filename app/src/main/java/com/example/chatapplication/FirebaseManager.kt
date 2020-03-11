@@ -4,6 +4,7 @@ object FirebaseManager {
     var user: User? = null
     var otherUser: User? = null
     var contacts: MutableList<String>? = null
+    var blocklist: MutableList<String>? = null
     var attachedImage: String? = null
     var attachedFile: String? = null
     var attachedFileSize: Double? = null

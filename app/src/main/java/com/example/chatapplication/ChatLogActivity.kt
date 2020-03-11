@@ -272,7 +272,10 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun listenForMessages() {
         val fromId = FirebaseAuth.getInstance().uid
-        val toId = toUser?.uid
+        val toId = toUser!!.uid
+        if (FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
+            return
+        }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
         ref.addChildEventListener(object : ChildEventListener {
             override fun onCancelled(p0: DatabaseError) {
