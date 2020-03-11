@@ -344,20 +344,20 @@ class ChatLogActivity : AppCompatActivity() {
         val text: String,
         val fromId: String,
         val toId: String,
-        val timestamp: Long
+        val timestamp: String
     ) {
-        constructor(): this("", "", "", "", -1)
+        constructor(): this("", "", "", "", "")
 
         var imageUrl: String? = null
         var fileUrl: String? = null
         var fileSize: Double? = null
         var fileType: String? = null
 
-        constructor(id: String, text: String, fromId: String, toId: String, timestamp: Long, imageUrl: String) : this(id, text, fromId, toId, timestamp) {
+        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, imageUrl: String) : this(id, text, fromId, toId, timestamp) {
             this.imageUrl = imageUrl
         }
 
-        constructor(id: String, text: String, fromId: String, toId: String, timestamp: Long, fileUrl: String, fileSize: Double, fileType: String) : this(id, text, fromId, toId, timestamp) {
+        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, fileUrl: String, fileSize: Double, fileType: String) : this(id, text, fromId, toId, timestamp) {
             this.fileUrl = fileUrl
             this.fileSize = fileSize
             this.fileType = fileType
@@ -376,12 +376,12 @@ class ChatLogActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
-        val timestamp = System.currentTimeMillis() / 1000
         val year = LocalDateTime.now().year
         val month = LocalDateTime.now().month
         val date = LocalDateTime.now().dayOfMonth
         val hour = LocalDateTime.now().hour
         val minute = LocalDateTime.now().minute
+        val timestamp = "$hour:$minute"
 
         if (text != null) {
 
