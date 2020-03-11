@@ -54,7 +54,7 @@
         android:text="Timestamp"
         android:textColor="#8C8C8C"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/messageSeen"
-        app:layout_constraintEnd_toStartOf="@+id/textMessageFrom" />
+        app:layout_constraintEnd_toStartOf="@+id/textMessageFrom"
+        app:layout_constraintTop_toTopOf="@+id/textMessageFrom" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

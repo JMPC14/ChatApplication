@@ -205,8 +205,10 @@ class ChatLogActivity : AppCompatActivity() {
             val itemToFile = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemFile
             FirebaseManager.latestMessageSeen = itemToFile.chatMessage.id
         }
-        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
-        ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
+        if (FirebaseManager.latestMessageSeen != null) {
+            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
+            ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
+        }
         super.onPause()
     }
 
@@ -417,7 +419,7 @@ class ChatLogActivity : AppCompatActivity() {
         val minute = LocalDateTime.now().minute
         val newMinute: String?
         newMinute = if (minute < 10) {
-            "0 $minute"
+            "0$minute"
         } else {
             minute.toString()
         }
