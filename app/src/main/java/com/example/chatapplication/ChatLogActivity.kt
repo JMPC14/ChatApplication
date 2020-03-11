@@ -291,25 +291,25 @@ class ChatLogActivity : AppCompatActivity() {
 
                     if (chatMessage.imageUrl == null && chatMessage.fileUrl == null) {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItem(chatMessage.id, chatMessage.text, currentUser, sequentialFrom))
+                            adapter.add(ChatFromItem(chatMessage, currentUser, sequentialFrom))
                         } else {
-                            adapter.add(ChatToItem(p0.key!!, chatMessage.text, toUser!!, sequentialTo))
+                            adapter.add(ChatToItem(p0.key!!, chatMessage, toUser!!, sequentialTo))
                         }
                     }
 
                     else if (chatMessage.fileUrl != null) {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItemFile(chatMessage.id, chatMessage.text, currentUser, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!, sequentialFrom))
+                            adapter.add(ChatFromItemFile(chatMessage, currentUser, sequentialFrom))
                         } else {
-                            adapter.add(ChatToItemFile(p0.key!!, chatMessage.text, toUser!!, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!, sequentialTo))
+                            adapter.add(ChatToItemFile(p0.key!!, chatMessage, toUser!!, sequentialTo))
                         }
                     }
 
                     else if (chatMessage.imageUrl != null) {
                         if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItemImage(chatMessage.id, chatMessage.text, currentUser, chatMessage.imageUrl!!, sequentialFrom))
+                            adapter.add(ChatFromItemImage(chatMessage, currentUser, sequentialFrom))
                         } else {
-                            adapter.add(ChatToItemImage(p0.key!!, chatMessage.text, toUser!!, chatMessage.imageUrl!!, sequentialTo))
+                            adapter.add(ChatToItemImage(p0.key!!, chatMessage, toUser!!, sequentialTo))
                         }
                     }
                     recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
@@ -435,10 +435,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatFromItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItem(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            viewHolder.itemView.textMessageFrom.text = text
+            viewHolder.itemView.textMessageFrom.text = chatMessage.text
+            viewHolder.itemView.timestampMessageFrom.text = chatMessage.timestamp.toString()
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageMessageFrom)
             }
@@ -450,7 +451,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -472,10 +473,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatToItem(val id: String, val text: String, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItem(val id: String, val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            viewHolder.itemView.textMessageTo.text = text
+            viewHolder.itemView.textMessageTo.text = chatMessage.text
+            viewHolder.itemView.timestampMessageTo.text = chatMessage.timestamp.toString()
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageMessageTo)
 
@@ -506,7 +508,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -528,22 +530,22 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-
-    inner class ChatFromItemImage(val id: String, val text: String, val user: User, val imageUrl: String, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItemImage(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_from_image
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            viewHolder.itemView.textMessageFromImage.text = text
+            viewHolder.itemView.textMessageFromImage.text = chatMessage.text
+            viewHolder.itemView.timestampMessageFromImage.text = chatMessage.timestamp.toString()
             val imageMessage = viewHolder.itemView.imageMessageFromImage
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromImage)
             }
-            Picasso.get().load(imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
+            Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
 
-            if (text.isEmpty()) {
+            if (chatMessage.text.isEmpty()) {
                 viewHolder.itemView.textMessageFromImage.height = 0
             }
 
@@ -555,7 +557,7 @@ class ChatLogActivity : AppCompatActivity() {
                         R.id.view_image -> {
                             val builder = CustomTabsIntent.Builder()
                             val customTabsIntent = builder.build()
-                            customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(imageUrl))
+                            customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(chatMessage.imageUrl))
                         }
                     }
                     true
@@ -570,7 +572,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -584,25 +586,26 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatToItemImage(val id: String, val text: String, val user: User, val imageUrl: String, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItemImage(val id: String, val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_to_image
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            viewHolder.itemView.textMessageToImage.text = text
+            viewHolder.itemView.textMessageToImage.text = chatMessage.text
+            viewHolder.itemView.timestampMessageToImage.text = chatMessage.timestamp.toString()
             val imageMessage = viewHolder.itemView.imageMessageToImage
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToImage)
             }
-            Picasso.get().load(imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
+            Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
 
             if (sequential) {
                 viewHolder.itemView.imageToImage.visibility = View.INVISIBLE
             }
 
-            if (text.isEmpty()) {
+            if (chatMessage.text.isEmpty()) {
                 viewHolder.itemView.textMessageToImage.height = 0
             }
 
@@ -614,7 +617,7 @@ class ChatLogActivity : AppCompatActivity() {
                         R.id.view_image -> {
                             val builder = CustomTabsIntent.Builder()
                             val customTabsIntent = builder.build()
-                            customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(imageUrl))
+                            customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(chatMessage.imageUrl))
                         }
                     }
                     true
@@ -643,35 +646,36 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatFromItemFile(val id: String, val text: String, val user: User, val fileUrl: String, val fileSize: Double, val fileType: String, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItemFile(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_from_file
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            if (fileSize > 1000) {
-                viewHolder.itemView.fileSizeFromFile.text = "${fileSize/1000}mB"
+            if (chatMessage.fileSize!! > 1000) {
+                viewHolder.itemView.fileSizeFromFile.text = "${chatMessage.fileSize?.div(1000)}mB"
             } else {
-                viewHolder.itemView.fileSizeFromFile.text = "${fileSize}kB"
+                viewHolder.itemView.fileSizeFromFile.text = "${chatMessage.fileSize}kB"
             }
 
-            viewHolder.itemView.fileTypeFromFile.text = fileType
-            viewHolder.itemView.textMessageFromFile.text = text
+            viewHolder.itemView.fileTypeFromFile.text = chatMessage.fileType
+            viewHolder.itemView.textMessageFromFile.text = chatMessage.text
+            viewHolder.itemView.timestampMessageFromFile.text = chatMessage.timestamp.toString()
             Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromFile)
 
             if (sequential) {
                 viewHolder.itemView.imageFromFile.visibility = View.INVISIBLE
             }
 
-            if (text.isEmpty()) {
+            if (chatMessage.text.isEmpty()) {
                 viewHolder.itemView.textMessageFromFile.height = 0
             }
 
             viewHolder.itemView.imageMessageFromFile.setOnClickListener {
                 val builder = CustomTabsIntent.Builder()
                 val customTabsIntent = builder.build()
-                customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(fileUrl))
+                customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(chatMessage.fileUrl))
             }
 
             viewHolder.itemView.setOnLongClickListener {
@@ -681,7 +685,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -702,33 +706,35 @@ class ChatLogActivity : AppCompatActivity() {
 
     }
 
-    inner class ChatToItemFile(val id: String, val text: String, val user: User, val fileUrl: String, val fileSize: Double, val fileType: String, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItemFile(val id: String, val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
         override fun getLayout(): Int {
             return R.layout.chat_message_to_file
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            if (fileSize > 1000) {
-                viewHolder.itemView.fileSizeToFile.text = "${fileSize/1000}mB"
+            if (chatMessage.fileSize!! > 1000) {
+                viewHolder.itemView.fileSizeToFile.text = "${chatMessage.fileSize?.div(1000)}mB"
             } else {
-                viewHolder.itemView.fileSizeToFile.text = "${fileSize}kB"
+                viewHolder.itemView.fileSizeToFile.text = "${chatMessage.fileSize}kB"
             }
-            viewHolder.itemView.fileTypeToFile.text = fileType
-            viewHolder.itemView.textMessageToFile.text = text
+
+            viewHolder.itemView.fileTypeToFile.text = chatMessage.fileType
+            viewHolder.itemView.textMessageToFile.text = chatMessage.text
+            viewHolder.itemView.timestampMessageToFile.text = chatMessage.timestamp.toString()
             Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToFile)
 
             if (sequential) {
                 viewHolder.itemView.imageToFile.visibility = View.INVISIBLE
             }
 
-            if (text.isEmpty()) {
+            if (chatMessage.text.isEmpty()) {
                 viewHolder.itemView.textMessageToFile.height = 0
             }
 
             viewHolder.itemView.imageMessageToFile.setOnClickListener {
                 val builder = CustomTabsIntent.Builder()
                 val customTabsIntent = builder.build()
-                customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(fileUrl))
+                customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(chatMessage.fileUrl))
             }
 
             viewHolder.itemView.setOnLongClickListener {

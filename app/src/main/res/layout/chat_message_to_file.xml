@@ -8,6 +8,7 @@
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayoutToFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
@@ -89,5 +90,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/btn_star_big_on" />
+
+    <TextView
+        android:id="@+id/timestampMessageToFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="Timestamp"
+        android:textColor="#8C8C8C"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/constraintLayoutToFile"
+        app:layout_constraintTop_toTopOf="@+id/constraintLayoutToFile" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

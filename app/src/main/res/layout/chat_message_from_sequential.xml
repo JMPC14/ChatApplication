@@ -25,13 +25,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/messageSeen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:text="Read"
         android:textColor="#8C8C8C"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textMessageFrom" />
+
+    <TextView
+        android:id="@+id/timestampMessageFrom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:text="Timestamp"
+        android:textColor="#8C8C8C"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/messageSeen"
         app:layout_constraintEnd_toStartOf="@+id/textMessageFrom" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
