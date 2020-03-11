@@ -330,17 +330,6 @@ class ChatLogActivity : AppCompatActivity() {
                         userTypingIndicator.visibility = View.INVISIBLE
                     }
                 }
-
-//                if (p0.child("hidden").exists()) {
-//                    if (FirebaseManager.hiddenPosition != null) {
-//                        adapter.removeGroupAtAdapterPosition(FirebaseManager.hiddenPosition!!)
-//                        FirebaseManager.hiddenPosition = null
-//                        adapter.notifyDataSetChanged()
-//                    }
-//                    adapter.notifyDataSetChanged()
-//                } else if (p0.key != "typing") {
-//                    adapter.notifyDataSetChanged()
-//                }
                 adapter.notifyDataSetChanged()
             }
 
