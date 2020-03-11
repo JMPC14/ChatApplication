@@ -51,11 +51,11 @@ class LatestMessagesActivity : AppCompatActivity() {
         recyclerLatestMessages.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         adapter.setOnItemClickListener { item, view ->
-            val intent = Intent(this, ChatLogActivity::class.java)
             val row = item as LatestMessageRow
             if (row.chatPartnerUser == null) {
                 return@setOnItemClickListener
             }
+            val intent = Intent(this, ChatLogActivity::class.java)
             intent.putExtra(NewMessageActivity.USER_KEY, row.chatPartnerUser)
             startActivity(intent)
         }
@@ -102,10 +102,8 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
 
             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                myBitmap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200)
-                val img = RoundedBitmapDrawableFactory.create(resources, myBitmap)
-                img.isCircular = true
-                myBitmap = img.toBitmap()
+                val newBitmap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200)
+                myBitmap = RoundedBitmapDrawableFactory.create(resources, newBitmap).apply { isCircular = true }.toBitmap()
             }
 
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
@@ -158,10 +156,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun fetchContacts() {
-
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {

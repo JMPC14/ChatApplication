@@ -103,7 +103,6 @@ class ChatLogActivity : AppCompatActivity() {
         recyclerChatLog.layoutManager = LinearLayoutManager(this)
 
         toUser = intent.getParcelableExtra(LatestMessagesActivity.NOT_USER_KEY)
-
         if (toUser == null) {
             toUser = intent.getParcelableExtra(NewMessageActivity.USER_KEY)
         }
@@ -539,13 +538,10 @@ class ChatLogActivity : AppCompatActivity() {
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageFromImage.text = text
             val imageMessage = viewHolder.itemView.imageMessageFromImage
-            val target = viewHolder.itemView.imageFromImage
-            Picasso.get().load(user.profileImageUrl).into(target)
-            Picasso.get().load(imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
-
-            if (sequential) {
-                viewHolder.itemView.imageFromImage.visibility = View.INVISIBLE
+            if (!sequential) {
+                Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromImage)
             }
+            Picasso.get().load(imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
 
             if (text.isEmpty()) {
                 viewHolder.itemView.textMessageFromImage.height = 0
@@ -597,8 +593,9 @@ class ChatLogActivity : AppCompatActivity() {
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageToImage.text = text
             val imageMessage = viewHolder.itemView.imageMessageToImage
-            val target = viewHolder.itemView.imageToImage
-            Picasso.get().load(user.profileImageUrl).into(target)
+            if (!sequential) {
+                Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToImage)
+            }
             Picasso.get().load(imageUrl).transform(RoundedCornersTransformation(20, 20)).into(imageMessage)
 
             if (sequential) {
