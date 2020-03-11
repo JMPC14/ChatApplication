@@ -508,7 +508,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
+                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
