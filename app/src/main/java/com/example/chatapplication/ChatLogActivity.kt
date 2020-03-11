@@ -240,7 +240,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    private fun listenForMessages() {
+    private fun refreshAdapter() {
         val fromId = FirebaseAuth.getInstance().uid
         val toId = toUser?.uid
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
@@ -315,6 +315,94 @@ class ChatLogActivity : AppCompatActivity() {
                     }
                     recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
                     recyclerChatLog.adapter = adapter
+                }
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+            }
+        })
+    }
+
+    private fun listenForMessages() {
+        val fromId = FirebaseAuth.getInstance().uid
+        val toId = toUser?.uid
+        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
+        ref.addChildEventListener(object : ChildEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                if (p0.key == "typing") {
+                    if (p0.value == true) {
+                        userTypingIndicator.textSize = 14.toFloat()
+                        userTypingIndicator.visibility = View.VISIBLE
+                        userTypingIndicator.text = "${toUser!!.username} is typing..."
+                    }
+                    else if (p0.value != true) {
+                        userTypingIndicator.textSize = 0.toFloat()
+                        userTypingIndicator.visibility = View.INVISIBLE
+                    }
+                    return
+                }
+
+                if (p0.child("hidden").value == true) {
+                    return
+                }
+
+                val chatMessage = p0.getValue(ChatMessage::class.java)
+                val currentUser = LatestMessagesActivity.currentUser!!
+                if (chatMessage != null) {
+
+                    var sequentialFrom = false
+                    var sequentialTo = false
+
+                    if (adapter.itemCount != 0) {
+                        val test = adapter.getItem(adapter.itemCount - 1)
+                        if (test.layout == R.layout.chat_message_from
+                            || test.layout == R.layout.chat_message_from_image
+                            || test.layout == R.layout.chat_message_from_file
+                            || test.layout == R.layout.chat_message_from_sequential) {
+                            sequentialFrom = true
+                            sequentialTo = false
+                        } else if (test.layout == R.layout.chat_message_to
+                            || test.layout == R.layout.chat_message_to_image
+                            || test.layout == R.layout.chat_message_to_file
+                            || test.layout == R.layout.chat_message_to_sequential) {
+                            sequentialTo = true
+                            sequentialFrom = false
+                        }
+                    }
+
+                    if (chatMessage.imageUrl == null && chatMessage.fileUrl == null) {
+                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                            adapter.add(ChatFromItem(chatMessage.id, chatMessage.text, currentUser, sequentialFrom))
+                        } else {
+                            adapter.add(ChatToItem(p0.key!!, chatMessage.text, toUser!!, sequentialTo))
+                        }
+                    }
+
+                    else if (chatMessage.fileUrl != null) {
+                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                            adapter.add(ChatFromItemFile(chatMessage.id, chatMessage.text, currentUser, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!, sequentialFrom))
+                        } else {
+                            adapter.add(ChatToItemFile(p0.key!!, chatMessage.text, toUser!!, chatMessage.fileUrl!!, chatMessage.fileSize!!, chatMessage.fileType!!, sequentialTo))
+                        }
+                    }
+
+                    else if (chatMessage.imageUrl != null) {
+                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                            adapter.add(ChatFromItemImage(chatMessage.id, chatMessage.text, currentUser, chatMessage.imageUrl!!, sequentialFrom))
+                        } else {
+                            adapter.add(ChatToItemImage(p0.key!!, chatMessage.text, toUser!!, chatMessage.imageUrl!!, sequentialTo))
+                        }
+                    }
+                    recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
                 }
             }
 
@@ -771,7 +859,7 @@ class ChatLogActivity : AppCompatActivity() {
                             }
                         }
                         adapter.clear()
-                        listenForMessages()
+                        refreshAdapter()
                     }
                 })
             }
