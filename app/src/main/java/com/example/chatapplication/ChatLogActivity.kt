@@ -195,14 +195,15 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun updateLatestMessageSeen() {
         val test = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1)
-        var itemTo: ChatToItem?
-        var itemFrom: ChatFromItem?
         if (test.layout == R.layout.chat_message_to || test.layout == R.layout.chat_message_to_sequential) {
-            itemTo = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItem
+            val itemTo = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItem
             FirebaseManager.latestMessageSeen = itemTo.chatMessage.id
-        } else if (test.layout == R.layout.chat_message_from || test.layout == R.layout.chat_message_from_sequential) {
-            itemFrom = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatFromItem
-            FirebaseManager.latestMessageSeen = itemFrom.chatMessage.id
+        } else if (test.layout == R.layout.chat_message_to_image) {
+            val itemToImage = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemImage
+            FirebaseManager.latestMessageSeen = itemToImage.chatMessage.id
+        } else if (test.layout == R.layout.chat_message_to_file) {
+            val itemToFile = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1) as ChatToItemFile
+            FirebaseManager.latestMessageSeen = itemToFile.chatMessage.id
         }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
         ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
@@ -360,8 +361,7 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (p0.key!! == "latestMessageSeen") {
                     FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
-                    adapter.clear()
-                    listenForMessages()
+                    adapter.notifyDataSetChanged()
                 }
             }
 
@@ -480,6 +480,8 @@ class ChatLogActivity : AppCompatActivity() {
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
                 viewHolder.itemView.messageSeen.visibility = View.VISIBLE
+            } else {
+                viewHolder.itemView.messageSeen.visibility = View.GONE
             }
             viewHolder.itemView.textMessageFrom.text = chatMessage.text
             viewHolder.itemView.timestampMessageFrom.text = chatMessage.timestamp.toString()
@@ -580,6 +582,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+            if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
+                viewHolder.itemView.messageSeenImage.visibility = View.VISIBLE
+            } else {
+                viewHolder.itemView.messageSeenImage.visibility = View.GONE
+            }
             if (chatMessage.text.isNotEmpty()) {
                 viewHolder.itemView.textMessageFromImage.text = chatMessage.text
             } else {
@@ -696,6 +703,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+            if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
+                viewHolder.itemView.messageSeenFile.visibility = View.VISIBLE
+            } else {
+                viewHolder.itemView.messageSeenFile.visibility = View.GONE
+            }
             if (chatMessage.fileSize!! > 1000) {
                 viewHolder.itemView.fileSizeFromFile.text = "${chatMessage.fileSize?.div(1000)}mB"
             } else {
