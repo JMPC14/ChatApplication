@@ -29,10 +29,6 @@ class NewContactActivity : AppCompatActivity() {
 
     }
 
-    companion object {
-        val CONTACT_KEY = "CONTACT_KEY"
-    }
-
     private fun fetchUsers() {
         val userRef = FirebaseDatabase.getInstance().getReference("/users")
         userRef.addListenerForSingleValueEvent(object: ValueEventListener {

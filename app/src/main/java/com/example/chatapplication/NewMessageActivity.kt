@@ -55,37 +55,6 @@ class NewMessageActivity : AppCompatActivity() {
             finish()
         }
         recyclerNewMessage.adapter = adapter
-
-
-//        val uid = FirebaseAuth.getInstance().uid
-//        FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
-//            override fun onCancelled(p0: DatabaseError) {
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//                val adapter = GroupAdapter<GroupieViewHolder>()
-//                FirebaseManager.contacts?.forEach {
-//                    FirebaseDatabase.getInstance().getReference("/users/$it").addListenerForSingleValueEvent(object: ValueEventListener {
-//                        override fun onCancelled(p0: DatabaseError) {
-//                        }
-//
-//                        override fun onDataChange(p0: DataSnapshot) {
-//                            adapter.add(UserItem(p0.getValue(User::class.java)!!))
-//                        }
-//                    })
-//                }
-//                adapter.setOnItemClickListener { item, view ->
-//
-//                    val userItem = item as UserItem
-//                    val intent = Intent(view.context, ChatLogActivity::class.java)
-//                    intent.putExtra(USER_KEY, userItem.user)
-//                    startActivity(intent)
-//
-//                    finish()
-//                }
-//                recyclerNewMessage.adapter = adapter
-//            }
-//        })
     }
 }
 

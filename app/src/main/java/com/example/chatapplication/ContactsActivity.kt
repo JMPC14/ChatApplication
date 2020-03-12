@@ -52,33 +52,6 @@ class ContactsActivity : AppCompatActivity() {
                 })
         }
         recyclerContacts.adapter = adapter
-
-//        var contacts: List<String> = listOf()
-//
-//        val uid = FirebaseAuth.getInstance().uid
-//        FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
-//            override fun onCancelled(p0: DatabaseError) {
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//                val adapter = GroupAdapter<GroupieViewHolder>()
-//                p0.children.forEach {
-//                    contacts = contacts.plus(it.value.toString())
-//                    FirebaseManager.contacts = contacts.toMutableList()
-//                }
-//                contacts.forEach {
-//                    FirebaseDatabase.getInstance().getReference("/users/$it").addListenerForSingleValueEvent(object: ValueEventListener {
-//                        override fun onCancelled(p0: DatabaseError) {
-//                        }
-//
-//                        override fun onDataChange(p0: DataSnapshot) {
-//                            adapter.add(ContactItem(p0.getValue(User::class.java)!!))
-//                        }
-//                    })
-//                }
-//                recyclerContacts.adapter = adapter
-//            }
-//        })
     }
 
     inner class ContactItem(val contact: User) : Item<GroupieViewHolder>() {
@@ -102,24 +75,6 @@ class ContactsActivity : AppCompatActivity() {
                                 .getReference("/users/${FirebaseManager.user?.uid}/contacts")
                                 .setValue(FirebaseManager.contacts)
                             fetchContactsForAdapter()
-
-//                        val removeUid = contact.uid
-//                        var contactList: MutableList<String> = mutableListOf()
-//
-//                        val uid = FirebaseAuth.getInstance().uid
-//                        FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
-//                            override fun onCancelled(p0: DatabaseError) {
-//                            }
-//
-//                            override fun onDataChange(p0: DataSnapshot) {
-//                                p0.children.forEach {
-//                                    contactList = contactList.plus(it.value.toString()) as MutableList<String>
-//                                }
-//                                contactList.remove(removeUid)
-//                                FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").setValue(contactList)
-//                                FirebaseManager.contacts = contactList
-//                            }
-//                        })
                         }
                     }
                     true
