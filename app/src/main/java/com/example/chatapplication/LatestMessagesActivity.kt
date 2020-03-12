@@ -40,6 +40,13 @@ class LatestMessagesActivity : AppCompatActivity() {
         var NOTIFICATION_ID = 1
     }
 
+    override fun onResume() {
+        super.onResume()
+        adapter.clear()
+        fetchBlocklist()
+        refreshRecyclerViewMessages()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_latest_messages)
@@ -48,7 +55,12 @@ class LatestMessagesActivity : AppCompatActivity() {
 
         recyclerLatestMessages.layoutManager = LinearLayoutManager(this)
         recyclerLatestMessages.adapter = adapter
-        recyclerLatestMessages.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        recyclerLatestMessages.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
 
         adapter.setOnItemClickListener { item, view ->
             val row = item as LatestMessageRow
@@ -72,13 +84,9 @@ class LatestMessagesActivity : AppCompatActivity() {
 
         verifyUserLoggedIn()
 
-        listenForLatestMessages()
-
-        listenForOnlineIndicators()
-
         fetchContacts()
 
-        fetchBlocklist()
+        listenForOnlineIndicators()
     }
 
     private val CHANNEL_ID = "chat_notifications"
@@ -184,6 +192,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 p0.children.forEach {
                     FirebaseManager.blocklist?.add(it.value.toString())
                 }
+                listenForLatestMessages()
             }
         })
     }
@@ -206,7 +215,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 val chatMessage = p0.getValue(ChatLogActivity.ChatMessage::class.java) ?: return
 
                 if (FirebaseManager.blocklist != null ) {
-                    if (FirebaseManager.blocklist!!.contains(chatMessage.fromId)) {
+                    if (FirebaseManager.blocklist!!.contains(chatMessage.fromId) || FirebaseManager.blocklist!!.contains(chatMessage.toId)) {
                         return
                     }
                 }

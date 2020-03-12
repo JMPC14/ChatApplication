@@ -13,4 +13,5 @@ object FirebaseManager {
     var ignoreNotificationUid: String? = null
     var latestMessageSeen: String? = null
     var latestMessageOtherUserSeen: String? = null
+    var listOfMessages: MutableList<ChatLogActivity.ChatMessage>? = mutableListOf()
 }

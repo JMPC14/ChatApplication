@@ -11,25 +11,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".BlocklistActivity"></activity>
+        <activity
+            android:name=".BlocklistActivity"
+            android:parentActivityName=".LatestMessagesActivity"/>
         <activity
             android:name=".ChangePasswordActivity"
-            android:parentActivityName=".EditProfileActivity"></activity>
+            android:parentActivityName=".EditProfileActivity" />
         <activity
             android:name=".ForgotPasswordActivity"
-            android:parentActivityName=".LoginActivity"></activity>
+            android:parentActivityName=".LoginActivity" />
         <activity
             android:name=".NewContactActivity"
-            android:parentActivityName=".ContactsActivity"></activity>
+            android:parentActivityName=".ContactsActivity" />
         <activity
             android:name=".ContactsActivity"
-            android:parentActivityName=".LatestMessagesActivity"></activity>
+            android:parentActivityName=".LatestMessagesActivity" />
         <activity
             android:name=".EditProfileActivity"
-            android:parentActivityName=".ProfileActivity"></activity>
+            android:parentActivityName=".ProfileActivity" />
         <activity
             android:name=".ProfileActivity"
-            android:parentActivityName=".LatestMessagesActivity"></activity>
+            android:parentActivityName=".LatestMessagesActivity" />
         <activity android:name=".LauncherActivity" />
         <activity
             android:name=".ChatLogActivity"
@@ -40,7 +42,7 @@
         </activity>
         <activity
             android:name=".NewMessageActivity"
-            android:parentActivityName=".LatestMessagesActivity"></activity>
+            android:parentActivityName=".LatestMessagesActivity" />
         <activity android:name=".LatestMessagesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

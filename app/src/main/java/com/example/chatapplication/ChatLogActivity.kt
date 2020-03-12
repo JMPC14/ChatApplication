@@ -150,13 +150,13 @@ class ChatLogActivity : AppCompatActivity() {
 
         attachPhoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
-                intent.type = "image/*"
+            intent.type = "image/*"
             startActivityForResult(intent, 0)
         }
 
         attachFile.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                intent.type = "*/*"
+            intent.type = "*/*"
             startActivityForResult(intent, 1)
         }
 
@@ -553,6 +553,8 @@ class ChatLogActivity : AppCompatActivity() {
                                     FirebaseManager.blocklist!!.add(user.uid)
                                     val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
                                     ref.setValue(FirebaseManager.blocklist)
+                                    startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                    finish()
                                 }
                             }
                         }
@@ -675,6 +677,32 @@ class ChatLogActivity : AppCompatActivity() {
                 viewHolder.itemView.imageToImage.visibility = View.INVISIBLE
             }
 
+            viewHolder.itemView.imageToImage.setOnClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_image_tap_menu)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.view_profile -> {
+                            val intent =
+                                Intent(viewHolder.itemView.context, ProfileActivity::class.java)
+                            intent.putExtra(OTHER_USER_KEY, user)
+                            viewHolder.itemView.context.startActivity(intent)
+                        }
+                        R.id.block_user -> {
+                            if (FirebaseManager.blocklist != null) {
+                                FirebaseManager.blocklist!!.add(user.uid)
+                                val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                ref.setValue(FirebaseManager.blocklist)
+                                startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                finish()
+                            }
+                        }
+                    }
+                    true
+                }
+                pop.show()
+            }
+
             viewHolder.itemView.imageMessageToImage.setOnClickListener {
                 val pop = PopupMenu(it.context, it)
                 pop.inflate(R.menu.chat_log_image_message_tap)
@@ -684,13 +712,6 @@ class ChatLogActivity : AppCompatActivity() {
                             val builder = CustomTabsIntent.Builder()
                             val customTabsIntent = builder.build()
                             customTabsIntent.launchUrl(viewHolder.itemView.context, Uri.parse(chatMessage.imageUrl))
-                        }
-                        R.id.block_user -> {
-                            if (FirebaseManager.blocklist != null) {
-                                FirebaseManager.blocklist!!.add(user.uid)
-                                val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
-                                ref.setValue(FirebaseManager.blocklist)
-                            }
                         }
                     }
                     true
@@ -810,6 +831,32 @@ class ChatLogActivity : AppCompatActivity() {
                 viewHolder.itemView.imageToFile.visibility = View.INVISIBLE
             }
 
+            viewHolder.itemView.imageToFile.setOnClickListener {
+                val pop = PopupMenu(it.context, it)
+                pop.inflate(R.menu.chat_log_image_tap_menu)
+                pop.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.view_profile -> {
+                            val intent =
+                                Intent(viewHolder.itemView.context, ProfileActivity::class.java)
+                            intent.putExtra(OTHER_USER_KEY, user)
+                            viewHolder.itemView.context.startActivity(intent)
+                        }
+                        R.id.block_user -> {
+                            if (FirebaseManager.blocklist != null) {
+                                FirebaseManager.blocklist!!.add(user.uid)
+                                val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                ref.setValue(FirebaseManager.blocklist)
+                                startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                finish()
+                            }
+                        }
+                    }
+                    true
+                }
+                pop.show()
+            }
+
             viewHolder.itemView.imageMessageToFile.setOnClickListener {
                 val builder = CustomTabsIntent.Builder()
                 val customTabsIntent = builder.build()
@@ -827,13 +874,6 @@ class ChatLogActivity : AppCompatActivity() {
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
-                        }
-                        R.id.block_user -> {
-                            if (FirebaseManager.blocklist != null) {
-                                FirebaseManager.blocklist!!.add(user.uid)
-                                val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
-                                ref.setValue(FirebaseManager.blocklist)
-                            }
                         }
                     }
                     true
