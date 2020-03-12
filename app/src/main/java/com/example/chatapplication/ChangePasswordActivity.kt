@@ -15,7 +15,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0.toFloat()
         supportActionBar?.title = null
 
-        val email = FirebaseAuth.getInstance().currentUser!!.email
+        // val email = FirebaseAuth.getInstance().currentUser!!.email TODO("Confirm current password")
 
         changePasswordButton.setOnClickListener {
             if (textPasswordChangeOld.text.isEmpty()) {

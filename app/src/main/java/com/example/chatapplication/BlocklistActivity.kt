@@ -47,7 +47,7 @@ class BlocklistActivity : AppCompatActivity() {
         recyclerBlocklist.adapter = adapter
     }
 
-    inner class BlocklistItem(val blockedUser: User) : Item<GroupieViewHolder>() {
+    inner class BlocklistItem(private val blockedUser: User) : Item<GroupieViewHolder>() {
         override fun getLayout(): Int {
             return R.layout.blocked_user_row
         }

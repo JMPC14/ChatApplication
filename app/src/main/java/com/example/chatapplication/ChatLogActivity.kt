@@ -503,7 +503,7 @@ class ChatLogActivity : AppCompatActivity() {
                 viewHolder.itemView.messageSeen.visibility = View.GONE
             }
             viewHolder.itemView.textMessageFrom.text = chatMessage.text
-            viewHolder.itemView.timestampMessageFrom.text = chatMessage.timestamp.toString()
+            viewHolder.itemView.timestampMessageFrom.text = chatMessage.timestamp
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageMessageFrom)
             }
@@ -541,7 +541,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageTo.text = chatMessage.text
-            viewHolder.itemView.timestampMessageTo.text = chatMessage.timestamp.toString()
+            viewHolder.itemView.timestampMessageTo.text = chatMessage.timestamp
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageMessageTo)
 
@@ -618,7 +618,7 @@ class ChatLogActivity : AppCompatActivity() {
             } else {
                 viewHolder.itemView.textMessageFromImage.height = 0
             }
-            viewHolder.itemView.timestampMessageFromImage.text = chatMessage.timestamp.toString()
+            viewHolder.itemView.timestampMessageFromImage.text = chatMessage.timestamp
             val imageMessage = viewHolder.itemView.imageMessageFromImage
             if (!sequential) {
                 Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromImage)

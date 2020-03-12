@@ -3,6 +3,8 @@ package com.example.chatapplication
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.media.Image
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -103,7 +105,7 @@ class EditProfileActivity : AppCompatActivity() {
             Log.d("PhotoChange", "Photo Change Begin")
             newPhotoUri = data.data
 
-            bitmap = MediaStore.Images.Media.getBitmap(contentResolver, newPhotoUri)
+            bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, newPhotoUri!!))
 
             replaceImageInFirebase()
         }

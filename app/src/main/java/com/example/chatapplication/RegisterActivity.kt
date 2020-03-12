@@ -1,6 +1,7 @@
 package com.example.chatapplication
 
 import android.content.Intent
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -39,14 +40,14 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    var selectedPhotoUri: Uri? = null
+    private var selectedPhotoUri: Uri? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 0 && resultCode == RESULT_OK && data != null) {
             selectedPhotoUri = data.data
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)
+            val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, selectedPhotoUri!!))
             selectPhotoImageViewRegister.setImageBitmap(bitmap)
             selectPhotoRegister.alpha = 0f
         }

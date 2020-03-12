@@ -29,7 +29,7 @@ class NewMessageActivity : AppCompatActivity() {
     }
 
     companion object {
-        val USER_KEY = "USER_KEY"
+        const val USER_KEY = "USER_KEY"
     }
 
     private fun fetchContactsForMessage() {
