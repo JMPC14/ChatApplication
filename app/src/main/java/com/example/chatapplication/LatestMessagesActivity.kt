@@ -149,7 +149,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
         builder.addAction(action)
 
-        val notificationManagerCompat = NotificationManagerCompat.from(this)
+        NotificationManagerCompat.from(this)
             .notify(NOTIFICATION_ID, builder.build())
     }
 
@@ -201,7 +201,11 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private fun refreshRecyclerViewMessages() {
         adapter.clear()
-        latestMessageMap.values.forEach { adapter.add(LatestMessageRow(it)) }
+        val result = latestMessageMap.toList()
+        val sorted = result.sortedByDescending {
+            it.second.time
+        }.toMap()
+        sorted.values.forEach { adapter.add(LatestMessageRow(it)) }
     }
 
     private fun listenForLatestMessages() {
@@ -222,7 +226,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-                val key = p0.key.toString()
+                val key = p0.key!!
                 val keyValue = p0.child("displayed").value
                 val notRef = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
                 notRef.addListenerForSingleValueEvent(object: ValueEventListener {
@@ -244,7 +248,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-                val key = p0.key.toString()
+                val key = p0.key!!
                 val keyValue = p0.child("displayed").value
                 val notRef2 = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
                 notRef2.addListenerForSingleValueEvent(object: ValueEventListener {
@@ -277,7 +281,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            var chatPartnerId: String?
+            val chatPartnerId: String?
             if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
                 chatPartnerId = chatMessage.toId
                 if (chatMessage.imageUrl != null || chatMessage.fileUrl != null) {
@@ -288,8 +292,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             } else if (chatMessage.fileUrl == null && chatMessage.imageUrl == null) {
                 chatPartnerId = chatMessage.fromId
                 viewHolder.itemView.textLatestMessageRow.text = "Them: ${chatMessage.text}"
-            }
-            else {
+            } else {
                 chatPartnerId = chatMessage.fromId
             }
 

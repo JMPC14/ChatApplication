@@ -389,20 +389,21 @@ class ChatLogActivity : AppCompatActivity() {
         val text: String,
         val fromId: String,
         val toId: String,
-        val timestamp: String
+        val timestamp: String,
+        val time: Long
     ) {
-        constructor(): this("", "", "", "", "")
+        constructor(): this("", "", "", "", "", -1)
 
         var imageUrl: String? = null
         var fileUrl: String? = null
         var fileSize: Double? = null
         var fileType: String? = null
 
-        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, imageUrl: String) : this(id, text, fromId, toId, timestamp) {
+        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, time: Long, imageUrl: String) : this(id, text, fromId, toId, timestamp, time) {
             this.imageUrl = imageUrl
         }
 
-        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, fileUrl: String, fileSize: Double, fileType: String) : this(id, text, fromId, toId, timestamp) {
+        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, time: Long, fileUrl: String, fileSize: Double, fileType: String) : this(id, text, fromId, toId, timestamp, time) {
             this.fileUrl = fileUrl
             this.fileSize = fileSize
             this.fileType = fileType
@@ -421,6 +422,7 @@ class ChatLogActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage: ChatMessage?
+        val time = System.currentTimeMillis() / 1000
         val year = LocalDateTime.now().year
         val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
         val date = LocalDateTime.now().dayOfMonth
@@ -436,28 +438,34 @@ class ChatLogActivity : AppCompatActivity() {
 
         if (text != null) {
 
-            chatMessage = if (FirebaseManager.attachedImage != null) {
-                ChatMessage(
-                    ref.key!!,
-                    text,
-                    fromId,
-                    toId,
-                    timestamp,
-                    FirebaseManager.attachedImage!!
-                )
-            } else if (FirebaseManager.attachedFile != null) {
-                ChatMessage(
-                    ref.key!!,
-                    text,
-                    fromId,
-                    toId,
-                    timestamp,
-                    FirebaseManager.attachedFile!!,
-                    FirebaseManager.attachedFileSize!!,
-                    FirebaseManager.attachedFileType!!
-                )
-            } else {
-                ChatMessage(ref.key!!, text, fromId, toId, timestamp)
+            chatMessage = when {
+                FirebaseManager.attachedImage != null -> {
+                    ChatMessage(
+                        ref.key!!,
+                        text,
+                        fromId,
+                        toId,
+                        timestamp,
+                        time,
+                        FirebaseManager.attachedImage!!
+                    )
+                }
+                FirebaseManager.attachedFile != null -> {
+                    ChatMessage(
+                        ref.key!!,
+                        text,
+                        fromId,
+                        toId,
+                        timestamp,
+                        time,
+                        FirebaseManager.attachedFile!!,
+                        FirebaseManager.attachedFileSize!!,
+                        FirebaseManager.attachedFileType!!
+                    )
+                }
+                else -> {
+                    ChatMessage(ref.key!!, text, fromId, toId, timestamp, time)
+                }
             }
 
             ref.setValue(chatMessage)
