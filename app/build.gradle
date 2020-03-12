@@ -33,8 +33,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = "1.8"
     }
+// To inline the bytecode built with JVM target 1.8 into
+// bytecode that is being built with JVM target 1.6. (e.g. navArgs)
 }
 
 dependencies {
@@ -58,6 +60,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation "com.android.support:support-compat:28.0.0"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.navigation:navigation-fragment:2.2.1'
+    implementation 'androidx.navigation:navigation-ui:2.2.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.2.1'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.2.1'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

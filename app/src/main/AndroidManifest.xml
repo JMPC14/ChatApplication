@@ -12,8 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".NavigationDrawerActivity"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".BlocklistActivity"
-            android:parentActivityName=".LatestMessagesActivity"/>
+            android:parentActivityName=".LatestMessagesActivity" />
         <activity
             android:name=".ChangePasswordActivity"
             android:parentActivityName=".EditProfileActivity" />
@@ -44,11 +54,11 @@
             android:name=".NewMessageActivity"
             android:parentActivityName=".LatestMessagesActivity" />
         <activity android:name=".LatestMessagesActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
