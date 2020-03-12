@@ -201,10 +201,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private fun refreshRecyclerViewMessages() {
         adapter.clear()
-        val result = latestMessageMap.toList()
-        val sorted = result.sortedByDescending {
-            it.second.time
-        }.toMap()
+        val sorted = latestMessageMap.toList().sortedByDescending { it.second.time }.toMap()
         sorted.values.forEach { adapter.add(LatestMessageRow(it)) }
     }
 

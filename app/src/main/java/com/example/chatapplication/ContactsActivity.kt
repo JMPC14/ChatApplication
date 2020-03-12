@@ -35,6 +35,8 @@ class ContactsActivity : AppCompatActivity() {
 
     private fun fetchContactsForAdapter() {
         val adapter = GroupAdapter<GroupieViewHolder>()
+        val list: MutableList<User>? = mutableListOf()
+        FirebaseManager.contacts!!.sortBy { it }
         FirebaseManager.contacts?.forEach {
             FirebaseDatabase.getInstance().getReference("/users/$it")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -42,12 +44,14 @@ class ContactsActivity : AppCompatActivity() {
                     }
 
                     override fun onDataChange(p0: DataSnapshot) {
-                        adapter.add(ContactItem(p0.getValue(User::class.java)!!))
+                        adapter.clear()
+                        list!!.add(p0.getValue(User::class.java)!!)
+                        list.sortBy { it.username}
+                        list.forEach { adapter.add(ContactItem(it)) }
                     }
                 })
         }
         recyclerContacts.adapter = adapter
-
 
 //        var contacts: List<String> = listOf()
 //
