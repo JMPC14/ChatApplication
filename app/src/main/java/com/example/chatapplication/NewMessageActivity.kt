@@ -4,16 +4,15 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import kotlinx.android.synthetic.main.activity_new_message.*
 import kotlinx.android.synthetic.main.user_row_newmessage.view.*
+import java.util.*
 
 class NewMessageActivity : AppCompatActivity() {
 
@@ -48,11 +47,46 @@ class NewMessageActivity : AppCompatActivity() {
         adapter.setOnItemClickListener { item, view ->
 
             val userItem = item as UserItem
-            val intent = Intent(view.context, ChatLogActivity::class.java)
-            intent.putExtra(USER_KEY, userItem.user)
-            startActivity(intent)
 
-            finish()
+            val cid = UUID.randomUUID().toString()
+            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseAuth.getInstance().uid}/${userItem.user.uid}")
+            ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                }
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    p0.children.forEach {
+                        if (it.key == "cid") {
+                            return
+                        }
+                    }
+                    ref.child("cid").setValue(cid)
+                    val intent = Intent(view.context, ChatLogActivity::class.java)
+                    intent.putExtra(USER_KEY, userItem.user)
+                    startActivity(intent)
+
+                    finish()
+                }
+            })
+            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseAuth.getInstance().uid}")
+            toRef.addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                }
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    p0.children.forEach {
+                        if (it.key == "cid") {
+                            return
+                        }
+                    }
+                    toRef.child("cid").setValue(cid)
+                    val intent = Intent(view.context, ChatLogActivity::class.java)
+                    intent.putExtra(USER_KEY, userItem.user)
+                    startActivity(intent)
+
+                    finish()
+                }
+            })
         }
         recyclerNewMessage.adapter = adapter
     }

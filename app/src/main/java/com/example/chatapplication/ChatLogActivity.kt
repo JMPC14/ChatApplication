@@ -214,7 +214,6 @@ class ChatLogActivity : AppCompatActivity() {
                 ref.child("latestMessageSeen").setValue(FirebaseManager.latestMessageSeen)
             }
         }
-        super.onPause()
     }
 
     override fun onUserInteraction() {
@@ -273,113 +272,129 @@ class ChatLogActivity : AppCompatActivity() {
     private fun listenForMessages() {
         val fromId = FirebaseAuth.getInstance().uid
         val toId = toUser!!.uid
+        var cid: String
+        var newRef: DatabaseReference
         if (FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
             return
         }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
-        ref.addChildEventListener(object : ChildEventListener {
+        ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onCancelled(p0: DatabaseError) {
             }
 
-            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-                if (p0.key == "typing") {
-                    if (p0.value == true) {
-                        userTypingIndicator.textSize = 14.toFloat()
-                        userTypingIndicator.visibility = View.VISIBLE
-                        userTypingIndicator.text = "${toUser!!.username} is typing..."
+            override fun onDataChange(p0: DataSnapshot) {
+                ref.addChildEventListener(object: ChildEventListener {
+                    override fun onCancelled(p0: DatabaseError) {
                     }
-                    else if (p0.value != true) {
-                        userTypingIndicator.textSize = 0.toFloat()
-                        userTypingIndicator.visibility = View.INVISIBLE
+
+                    override fun onChildMoved(p0: DataSnapshot, p1: String?) {
                     }
-                    return
-                }
 
-                if (p0.key == "latestMessageSeen") {
-                    FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
-                    adapter.notifyDataSetChanged()
-                    return
-                }
+                    override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                        if (p0.key!! == "typing") {
+                            if (p0.value == true) {
+                                userTypingIndicator.textSize = 14.toFloat()
+                                userTypingIndicator.visibility = View.VISIBLE
+                                userTypingIndicator.text = "${toUser!!.username} is typing..."
+                            }
+                            else if (p0.value != true) {
+                                userTypingIndicator.textSize = 0.toFloat()
+                                userTypingIndicator.visibility = View.INVISIBLE
+                            }
+                        }
 
-                if (p0.child("hidden").value == true) {
-                    return
-                }
-
-                val chatMessage = p0.getValue(ChatMessage::class.java)
-                val currentUser = LatestMessagesActivity.currentUser!!
-                if (chatMessage != null) {
-
-                    var sequentialFrom = false
-                    var sequentialTo = false
-
-                    if (adapter.itemCount != 0) {
-                        val test = adapter.getItem(adapter.itemCount - 1)
-                        if (test.layout == R.layout.chat_message_from
-                            || test.layout == R.layout.chat_message_from_image
-                            || test.layout == R.layout.chat_message_from_file
-                            || test.layout == R.layout.chat_message_from_sequential) {
-                            sequentialFrom = true
-                            sequentialTo = false
-                        } else if (test.layout == R.layout.chat_message_to
-                            || test.layout == R.layout.chat_message_to_image
-                            || test.layout == R.layout.chat_message_to_file
-                            || test.layout == R.layout.chat_message_to_sequential) {
-                            sequentialTo = true
-                            sequentialFrom = false
+                        if (p0.key!! == "latestMessageSeen") {
+                            FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
+                            adapter.notifyDataSetChanged()
                         }
                     }
 
-                    if (chatMessage.imageUrl == null && chatMessage.fileUrl == null) {
-                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItem(chatMessage, currentUser, sequentialFrom))
-                        } else {
-                            adapter.add(ChatToItem(p0.key!!, chatMessage, toUser!!, sequentialTo))
+                    override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                        if (p0.key!! == "latestMessageSeen") {
+                            FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
+                            adapter.notifyDataSetChanged()
                         }
                     }
 
-                    else if (chatMessage.fileUrl != null) {
-                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItemFile(chatMessage, currentUser, sequentialFrom))
-                        } else {
-                            adapter.add(ChatToItemFile(p0.key!!, chatMessage, toUser!!, sequentialTo))
+                    override fun onChildRemoved(p0: DataSnapshot) {
+                    }
+                })
+
+                if (p0.hasChild("cid")) {
+                    cid = p0.child("cid").value.toString()
+                    FirebaseManager.conversationId = cid
+                    newRef = FirebaseDatabase.getInstance().getReference("/conversations/$cid")
+                    newRef.addChildEventListener(object: ChildEventListener {
+                        override fun onCancelled(p0: DatabaseError) {
                         }
-                    }
 
-                    else if (chatMessage.imageUrl != null) {
-                        if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                            adapter.add(ChatFromItemImage(chatMessage, currentUser, sequentialFrom))
-                        } else {
-                            adapter.add(ChatToItemImage(p0.key!!, chatMessage, toUser!!, sequentialTo))
+                        override fun onChildMoved(p0: DataSnapshot, p1: String?) {
                         }
-                    }
-                    recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
-                    recyclerChatLog.adapter = adapter
+
+                        override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                        }
+
+                        override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                            if (p0.child("hidden").value == true) {
+                                return
+                            }
+
+                            val chatMessage = p0.getValue(ChatMessage::class.java)
+                            val currentUser = LatestMessagesActivity.currentUser!!
+                            if (chatMessage != null) {
+
+                                var sequentialFrom = false
+                                var sequentialTo = false
+
+                                if (adapter.itemCount != 0) {
+                                    val test = adapter.getItem(adapter.itemCount - 1)
+                                    if (test.layout == R.layout.chat_message_from
+                                        || test.layout == R.layout.chat_message_from_image
+                                        || test.layout == R.layout.chat_message_from_file
+                                        || test.layout == R.layout.chat_message_from_sequential) {
+                                        sequentialFrom = true
+                                        sequentialTo = false
+                                    } else if (test.layout == R.layout.chat_message_to
+                                        || test.layout == R.layout.chat_message_to_image
+                                        || test.layout == R.layout.chat_message_to_file
+                                        || test.layout == R.layout.chat_message_to_sequential) {
+                                        sequentialTo = true
+                                        sequentialFrom = false
+                                    }
+                                }
+
+                                if (chatMessage.imageUrl == null && chatMessage.fileUrl == null) {
+                                    if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                                        adapter.add(ChatFromItem(chatMessage, currentUser, sequentialFrom))
+                                    } else {
+                                        adapter.add(ChatToItem(p0.key!!, chatMessage, toUser!!, sequentialTo))
+                                    }
+                                }
+
+                                else if (chatMessage.fileUrl != null) {
+                                    if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                                        adapter.add(ChatFromItemFile(chatMessage, currentUser, sequentialFrom))
+                                    } else {
+                                        adapter.add(ChatToItemFile(p0.key!!, chatMessage, toUser!!, sequentialTo))
+                                    }
+                                }
+
+                                else if (chatMessage.imageUrl != null) {
+                                    if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                                        adapter.add(ChatFromItemImage(chatMessage, currentUser, sequentialFrom))
+                                    } else {
+                                        adapter.add(ChatToItemImage(p0.key!!, chatMessage, toUser!!, sequentialTo))
+                                    }
+                                }
+                                recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+                                recyclerChatLog.adapter = adapter
+                            }
+                        }
+
+                        override fun onChildRemoved(p0: DataSnapshot) {
+                        }
+                    })
                 }
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                if (p0.key!! == "typing") {
-                    if (p0.value == true) {
-                        userTypingIndicator.textSize = 14.toFloat()
-                        userTypingIndicator.visibility = View.VISIBLE
-                        userTypingIndicator.text = "${toUser!!.username} is typing..."
-                    }
-                    else if (p0.value != true) {
-                        userTypingIndicator.textSize = 0.toFloat()
-                        userTypingIndicator.visibility = View.INVISIBLE
-                    }
-                }
-
-                if (p0.key!! == "latestMessageSeen") {
-                    FirebaseManager.latestMessageOtherUserSeen = p0.value.toString()
-                    adapter.notifyDataSetChanged()
-                }
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
             }
         })
     }
@@ -417,81 +432,91 @@ class ChatLogActivity : AppCompatActivity() {
             enterMessageText.text.toString()
         }
 
+        var cid: String
+        var newRef: DatabaseReference
         val fromId = FirebaseAuth.getInstance().uid ?: return
         val toId = toUser!!.uid
-        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
-        val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
-        val chatMessage: ChatMessage?
-        val time = System.currentTimeMillis() / 1000
-        val year = LocalDateTime.now().year
-        val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
-        val date = LocalDateTime.now().dayOfMonth
-        val hour = LocalDateTime.now().hour
-        val minute = LocalDateTime.now().minute
-        val newMinute: String?
-        newMinute = if (minute < 10) {
-            "0$minute"
-        } else {
-            minute.toString()
-        }
-        val timestamp = "$date $month, $hour:$newMinute"
-
-        if (text != null) {
-
-            chatMessage = when {
-                FirebaseManager.attachedImage != null -> {
-                    ChatMessage(
-                        ref.key!!,
-                        text,
-                        fromId,
-                        toId,
-                        timestamp,
-                        time,
-                        FirebaseManager.attachedImage!!
-                    )
-                }
-                FirebaseManager.attachedFile != null -> {
-                    ChatMessage(
-                        ref.key!!,
-                        text,
-                        fromId,
-                        toId,
-                        timestamp,
-                        time,
-                        FirebaseManager.attachedFile!!,
-                        FirebaseManager.attachedFileSize!!,
-                        FirebaseManager.attachedFileType!!
-                    )
-                }
-                else -> {
-                    ChatMessage(ref.key!!, text, fromId, toId, timestamp, time)
-                }
-            }
-
-            ref.setValue(chatMessage)
-                .addOnSuccessListener {
-                    Log.d(TAG, "Saved chat message: ${ref.key}")
-                    enterMessageText.text.clear()
-                    recyclerChatLog.scrollToPosition(adapter.itemCount)
+        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
+            ref.addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
                 }
 
-            toRef.setValue(chatMessage)
+                override fun onDataChange(p0: DataSnapshot) {
+                    if (p0.hasChild("cid")) {
+                        cid = p0.child("cid").value.toString()
+                        newRef = FirebaseDatabase.getInstance().getReference("/conversations/$cid").push()
+                        val chatMessage: ChatMessage?
+                        val time = System.currentTimeMillis() / 1000
+                        val year = LocalDateTime.now().year
+                        val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+                        val date = LocalDateTime.now().dayOfMonth
+                        val hour = LocalDateTime.now().hour
+                        val minute = LocalDateTime.now().minute
+                        val newMinute: String?
+                        newMinute = if (minute < 10) {
+                            "0$minute"
+                        } else {
+                            minute.toString()
+                        }
+                        val timestamp = "$date $month, $hour:$newMinute"
 
-            val latestMessageRef =
-                FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
-            latestMessageRef.setValue(chatMessage)
+                        if (text != null) {
 
-            val latestMessageToRef =
-                FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
-            latestMessageToRef.setValue(chatMessage)
+                            chatMessage = when {
+                                FirebaseManager.attachedImage != null -> {
+                                    ChatMessage(
+                                        newRef.key!!,
+                                        text,
+                                        fromId,
+                                        toId,
+                                        timestamp,
+                                        time,
+                                        FirebaseManager.attachedImage!!
+                                    )
+                                }
+                                FirebaseManager.attachedFile != null -> {
+                                    ChatMessage(
+                                        newRef.key!!,
+                                        text,
+                                        fromId,
+                                        toId,
+                                        timestamp,
+                                        time,
+                                        FirebaseManager.attachedFile!!,
+                                        FirebaseManager.attachedFileSize!!,
+                                        FirebaseManager.attachedFileType!!
+                                    )
+                                }
+                                else -> {
+                                    ChatMessage(newRef.key!!, text, fromId, toId, timestamp, time)
+                                }
+                            }
 
-            FirebaseManager.attachedImage = null
-            FirebaseManager.attachedFile = null
-            FirebaseManager.attachedFileSize = null
-            imageAttachedLayout.visibility = View.INVISIBLE
-            fileAttachedLayout.visibility = View.INVISIBLE
-            sendMessageButton.isEnabled = false
-        }
+                            newRef.setValue(chatMessage)
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "Saved chat message: ${ref.key}")
+                                    enterMessageText.text.clear()
+                                    recyclerChatLog.scrollToPosition(adapter.itemCount)
+                                }
+
+                            val latestMessageRef =
+                                FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
+                            latestMessageRef.setValue(chatMessage)
+
+                            val latestMessageToRef =
+                                FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
+                            latestMessageToRef.setValue(chatMessage)
+
+                            FirebaseManager.attachedImage = null
+                            FirebaseManager.attachedFile = null
+                            FirebaseManager.attachedFileSize = null
+                            imageAttachedLayout.visibility = View.INVISIBLE
+                            fileAttachedLayout.visibility = View.INVISIBLE
+                            sendMessageButton.isEnabled = false
+                        }
+                    }
+                }
+            })
     }
 
     inner class ChatFromItem(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
@@ -515,7 +540,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
+                            val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -579,7 +604,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/$id")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -648,7 +673,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
+                            val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -734,7 +759,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/$id")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -793,7 +818,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/${chatMessage.id}")
+                            val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/${chatMessage.id}")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -878,7 +903,7 @@ class ChatLogActivity : AppCompatActivity() {
                     when (it.itemId) {
                         R.id.hide_message -> {
                             viewHolder.itemView.layoutParams.height = 0
-                            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}/$id")
+                            val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/$id")
                             ref.child("hidden").setValue(true)
                             adapter.clear()
                             listenForMessages()
@@ -900,7 +925,7 @@ class ChatLogActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.unhide_messages -> {
-                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${FirebaseManager.otherUser!!.uid}")
+                val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}")
                 ref.addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
                     }
