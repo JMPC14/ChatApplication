@@ -51,6 +51,9 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
         navView.setNavigationItemSelectedListener(this)
 
         fetchCurrentUser()
+
+        navView.menu.getItem(0).isChecked = true
+        onNavigationItemSelected(navView.menu.findItem(R.id.nav_latest_messages))
     }
 
     private fun fetchCurrentUser() {
@@ -75,7 +78,6 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.navigation_drawer, menu)
         return true
     }
