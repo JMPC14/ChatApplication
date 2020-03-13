@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -432,91 +431,77 @@ class ChatLogActivity : AppCompatActivity() {
             enterMessageText.text.toString()
         }
 
-        var cid: String
-        var newRef: DatabaseReference
         val fromId = FirebaseAuth.getInstance().uid ?: return
         val toId = toUser!!.uid
-        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
-            ref.addListenerForSingleValueEvent(object: ValueEventListener {
-                override fun onCancelled(p0: DatabaseError) {
+        val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}").push()
+        val chatMessage: ChatMessage?
+        val time = System.currentTimeMillis() / 1000
+        val year = LocalDateTime.now().year
+        val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+        val date = LocalDateTime.now().dayOfMonth
+        val hour = LocalDateTime.now().hour
+        val minute = LocalDateTime.now().minute
+        val newMinute: String?
+        newMinute = if (minute < 10) {
+            "0$minute"
+        } else {
+            minute.toString()
+        }
+        val timestamp = "$date $month, $hour:$newMinute"
+
+        if (text != null) {
+
+            chatMessage = when {
+                FirebaseManager.attachedImage != null -> {
+                    ChatMessage(
+                        ref.key!!,
+                        text,
+                        fromId,
+                        toId,
+                        timestamp,
+                        time,
+                        FirebaseManager.attachedImage!!
+                    )
+                }
+                FirebaseManager.attachedFile != null -> {
+                    ChatMessage(
+                        ref.key!!,
+                        text,
+                        fromId,
+                        toId,
+                        timestamp,
+                        time,
+                        FirebaseManager.attachedFile!!,
+                        FirebaseManager.attachedFileSize!!,
+                        FirebaseManager.attachedFileType!!
+                    )
+                }
+                else -> {
+                    ChatMessage(ref.key!!, text, fromId, toId, timestamp, time)
+                }
+            }
+
+            ref.setValue(chatMessage)
+                .addOnSuccessListener {
+                    enterMessageText.text.clear()
+                    recyclerChatLog.scrollToPosition(adapter.itemCount)
                 }
 
-                override fun onDataChange(p0: DataSnapshot) {
-                    if (p0.hasChild("cid")) {
-                        cid = p0.child("cid").value.toString()
-                        newRef = FirebaseDatabase.getInstance().getReference("/conversations/$cid").push()
-                        val chatMessage: ChatMessage?
-                        val time = System.currentTimeMillis() / 1000
-                        val year = LocalDateTime.now().year
-                        val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
-                        val date = LocalDateTime.now().dayOfMonth
-                        val hour = LocalDateTime.now().hour
-                        val minute = LocalDateTime.now().minute
-                        val newMinute: String?
-                        newMinute = if (minute < 10) {
-                            "0$minute"
-                        } else {
-                            minute.toString()
-                        }
-                        val timestamp = "$date $month, $hour:$newMinute"
+            val latestMessageRef =
+                FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
+            latestMessageRef.setValue(chatMessage)
 
-                        if (text != null) {
+            val latestMessageToRef =
+                FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
+            latestMessageToRef.setValue(chatMessage)
 
-                            chatMessage = when {
-                                FirebaseManager.attachedImage != null -> {
-                                    ChatMessage(
-                                        newRef.key!!,
-                                        text,
-                                        fromId,
-                                        toId,
-                                        timestamp,
-                                        time,
-                                        FirebaseManager.attachedImage!!
-                                    )
-                                }
-                                FirebaseManager.attachedFile != null -> {
-                                    ChatMessage(
-                                        newRef.key!!,
-                                        text,
-                                        fromId,
-                                        toId,
-                                        timestamp,
-                                        time,
-                                        FirebaseManager.attachedFile!!,
-                                        FirebaseManager.attachedFileSize!!,
-                                        FirebaseManager.attachedFileType!!
-                                    )
-                                }
-                                else -> {
-                                    ChatMessage(newRef.key!!, text, fromId, toId, timestamp, time)
-                                }
-                            }
-
-                            newRef.setValue(chatMessage)
-                                .addOnSuccessListener {
-                                    Log.d(TAG, "Saved chat message: ${ref.key}")
-                                    enterMessageText.text.clear()
-                                    recyclerChatLog.scrollToPosition(adapter.itemCount)
-                                }
-
-                            val latestMessageRef =
-                                FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
-                            latestMessageRef.setValue(chatMessage)
-
-                            val latestMessageToRef =
-                                FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
-                            latestMessageToRef.setValue(chatMessage)
-
-                            FirebaseManager.attachedImage = null
-                            FirebaseManager.attachedFile = null
-                            FirebaseManager.attachedFileSize = null
-                            imageAttachedLayout.visibility = View.INVISIBLE
-                            fileAttachedLayout.visibility = View.INVISIBLE
-                            sendMessageButton.isEnabled = false
-                        }
-                    }
-                }
-            })
+            FirebaseManager.attachedImage = null
+            FirebaseManager.attachedFile = null
+            FirebaseManager.attachedFileSize = null
+            imageAttachedLayout.visibility = View.INVISIBLE
+            fileAttachedLayout.visibility = View.INVISIBLE
+            sendMessageButton.isEnabled = false
+        }
     }
 
     inner class ChatFromItem(private val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
@@ -931,14 +916,18 @@ class ChatLogActivity : AppCompatActivity() {
                     }
 
                     override fun onDataChange(p0: DataSnapshot) {
+                        var hideComplete = false
                         p0.children.forEach {
                             if (it.child("hidden").exists()) {
                                 if (it.child("hidden").value == true)
                                     ref.child(it.key.toString()).child("hidden").removeValue()
+                                hideComplete = true
                             }
                         }
-                        adapter.clear()
-                        listenForMessages()
+                        if (hideComplete) {
+                            adapter.clear()
+                            listenForMessages()
+                        }
                     }
                 })
             }
