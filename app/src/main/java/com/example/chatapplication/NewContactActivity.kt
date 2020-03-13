@@ -26,7 +26,6 @@ class NewContactActivity : AppCompatActivity() {
         recyclerNewContact.layoutManager = LinearLayoutManager(this)
 
         fetchUsers()
-
     }
 
     private fun fetchUsers() {
@@ -49,7 +48,6 @@ class NewContactActivity : AppCompatActivity() {
 
                     adapter.setOnItemClickListener { item, view ->
                         val newContactItem = item as NewContactItem
-
                         val contactRef = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user?.uid}/contacts")
                         contactRef.addListenerForSingleValueEvent(object: ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {

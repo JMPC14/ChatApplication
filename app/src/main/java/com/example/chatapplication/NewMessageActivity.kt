@@ -47,7 +47,6 @@ class NewMessageActivity : AppCompatActivity() {
         adapter.setOnItemClickListener { item, view ->
 
             val userItem = item as UserItem
-
             val cid = UUID.randomUUID().toString()
             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseAuth.getInstance().uid}/${userItem.user.uid}")
             ref.addListenerForSingleValueEvent(object: ValueEventListener {
@@ -73,6 +72,7 @@ class NewMessageActivity : AppCompatActivity() {
                     finish()
                 }
             })
+
             val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseAuth.getInstance().uid}")
             toRef.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {

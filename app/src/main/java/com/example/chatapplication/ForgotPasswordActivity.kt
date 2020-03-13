@@ -12,7 +12,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forgot_password)
 
-        supportActionBar?.elevation = 0.toFloat()
+        supportActionBar?.elevation = 0f
         supportActionBar?.title = null
 
         sendEmailForgotPassword.setOnClickListener {

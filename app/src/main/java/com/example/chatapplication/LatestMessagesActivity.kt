@@ -1,5 +1,6 @@
 package com.example.chatapplication
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -274,9 +275,10 @@ class LatestMessagesActivity : AppCompatActivity() {
             return R.layout.latest_message_row
         }
 
+        @SuppressLint("SetTextI18n")
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             val chatPartnerId: String?
-            if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+            if (chatMessage.fromId == currentUser!!.uid) {
                 chatPartnerId = chatMessage.toId
                 if (chatMessage.imageUrl != null || chatMessage.fileUrl != null) {
                     viewHolder.itemView.textLatestMessageRow.text = "You sent a file"

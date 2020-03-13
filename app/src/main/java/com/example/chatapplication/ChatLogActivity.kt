@@ -1,5 +1,6 @@
 package com.example.chatapplication
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
@@ -291,6 +292,7 @@ class ChatLogActivity : AppCompatActivity() {
                     override fun onChildMoved(p0: DataSnapshot, p1: String?) {
                     }
 
+                    @SuppressLint("SetTextI18n")
                     override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                         if (p0.key!! == "typing") {
                             if (p0.value == true) {
@@ -766,6 +768,7 @@ class ChatLogActivity : AppCompatActivity() {
             return R.layout.chat_message_from_file
         }
 
+        @SuppressLint("SetTextI18n")
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
                 viewHolder.itemView.messageSeenFile.visibility = View.VISIBLE
@@ -831,6 +834,7 @@ class ChatLogActivity : AppCompatActivity() {
             return R.layout.chat_message_to_file
         }
 
+        @SuppressLint("SetTextI18n")
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             if (chatMessage.fileSize!! > 1000) {
                 viewHolder.itemView.fileSizeToFile.text = "${chatMessage.fileSize?.div(1000)}mB"

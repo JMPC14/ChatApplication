@@ -31,7 +31,7 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        supportActionBar?.elevation = 0.toFloat()
+        supportActionBar?.elevation = 0f
         supportActionBar?.title = "Edit Profile"
 
         if (savedInstanceState == null) {
@@ -125,15 +125,6 @@ class EditProfileActivity : AppCompatActivity() {
                 viewModel.profileImageUrl = it.toString()
                 databaseRef.setValue(it.toString())
                 userImageProfileEdit.setImageBitmap((bitmap))
-//                databaseRef.addListenerForSingleValueEvent(object: ValueEventListener {
-//                    override fun onCancelled(p0: DatabaseError) {
-//                    }
-//
-//                    override fun onDataChange(p0: DataSnapshot) {
-//                        databaseRef.setValue(it.toString())
-//                        userImageProfileEdit.setImageBitmap((bitmap))
-//                    }
-//                })
             }
         }
     }

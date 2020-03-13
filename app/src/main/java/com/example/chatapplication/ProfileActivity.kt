@@ -12,7 +12,7 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        supportActionBar?.elevation = 0.toFloat()
+        supportActionBar?.elevation = 0f
 
         val otherUser = intent.getParcelableExtra<User?>(ChatLogActivity.OTHER_USER_KEY)
 
