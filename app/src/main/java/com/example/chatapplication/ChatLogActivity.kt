@@ -519,7 +519,7 @@ class ChatLogActivity : AppCompatActivity() {
             })
     }
 
-    inner class ChatFromItem(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItem(private val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
@@ -562,7 +562,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatToItem(val id: String, val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItem(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.textMessageTo.text = chatMessage.text
@@ -626,7 +626,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatFromItemImage(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItemImage(private val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_from_image
@@ -687,7 +687,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatToItemImage(val id: String, val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItemImage(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_to_image
@@ -773,7 +773,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    inner class ChatFromItemFile(val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatFromItemFile(private val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
             return R.layout.chat_message_from_file
@@ -839,7 +839,7 @@ class ChatLogActivity : AppCompatActivity() {
 
     }
 
-    inner class ChatToItemFile(val id: String, val chatMessage: ChatMessage, val user: User, val sequential: Boolean) : Item<GroupieViewHolder>() {
+    inner class ChatToItemFile(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
         override fun getLayout(): Int {
             return R.layout.chat_message_to_file
         }
