@@ -41,7 +41,6 @@ class ChatLogActivity : AppCompatActivity() {
     private val viewModel by lazy { ViewModelProvider(this)[ChatLogViewModel::class.java] }
 
     companion object {
-        const val TAG = "ChatLog"
         const val OTHER_USER_KEY = "OTHER_USER_KEY"
     }
 
@@ -65,6 +64,9 @@ class ChatLogActivity : AppCompatActivity() {
         FirebaseManager.attachedFile = null
         FirebaseManager.attachedFileSize = null
         FirebaseManager.attachedFileType = null
+        FirebaseManager.otherUser = null
+        FirebaseManager.latestMessageSeen = null
+        FirebaseManager.latestMessageOtherUserSeen = null
         super.onStop()
     }
 

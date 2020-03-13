@@ -53,7 +53,7 @@ class ContactsActivity : AppCompatActivity() {
         recyclerContacts.adapter = adapter
     }
 
-    inner class ContactItem(val contact: User) : Item<GroupieViewHolder>() {
+    inner class ContactItem(private val contact: User) : Item<GroupieViewHolder>() {
         override fun getLayout(): Int {
             return R.layout.contact_row
         }

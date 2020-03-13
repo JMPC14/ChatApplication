@@ -4,11 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.media.Image
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -37,7 +35,7 @@ class EditProfileActivity : AppCompatActivity() {
         supportActionBar?.title = "Edit Profile"
 
         if (savedInstanceState == null) {
-            val uid = FirebaseAuth.getInstance().uid
+            val uid = FirebaseManager.user?.uid
             val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
@@ -121,7 +119,7 @@ class EditProfileActivity : AppCompatActivity() {
             ref.downloadUrl.addOnSuccessListener {
                 Log.d("PhotoChange", "File location: $it")
 
-                val uid = FirebaseAuth.getInstance().uid
+                val uid = FirebaseManager.user?.uid
                 val databaseRef = FirebaseDatabase.getInstance().getReference("/users/$uid").child("profileImageUrl")
                 FirebaseManager.user?.profileImageUrl = it.toString()
                 viewModel.profileImageUrl = it.toString()
@@ -161,7 +159,7 @@ class EditProfileActivity : AppCompatActivity() {
             R.id.save_profile -> {
                 val newUsername = usernameTextViewProfileEdit.text.toString()
                 val newEmail = emailTextViewProfileEdit.text.toString()
-                val uid = FirebaseAuth.getInstance().uid!!
+                val uid = FirebaseManager.user!!.uid
 
                 if (newEmail == FirebaseManager.user?.email) {
                     changeUsername(uid, newUsername)
