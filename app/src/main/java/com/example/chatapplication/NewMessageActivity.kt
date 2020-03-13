@@ -57,6 +57,11 @@ class NewMessageActivity : AppCompatActivity() {
                 override fun onDataChange(p0: DataSnapshot) {
                     p0.children.forEach {
                         if (it.key == "cid") {
+                            val intent = Intent(view.context, ChatLogActivity::class.java)
+                            intent.putExtra(USER_KEY, userItem.user)
+                            startActivity(intent)
+
+                            finish()
                             return
                         }
                     }
@@ -76,6 +81,11 @@ class NewMessageActivity : AppCompatActivity() {
                 override fun onDataChange(p0: DataSnapshot) {
                     p0.children.forEach {
                         if (it.key == "cid") {
+                            val intent = Intent(view.context, ChatLogActivity::class.java)
+                            intent.putExtra(USER_KEY, userItem.user)
+                            startActivity(intent)
+
+                            finish()
                             return
                         }
                     }
