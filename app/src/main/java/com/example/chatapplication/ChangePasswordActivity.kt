@@ -12,7 +12,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_password)
 
-        supportActionBar?.elevation = 0.toFloat()
+        supportActionBar?.elevation = 0f
         supportActionBar?.title = null
 
         // val email = FirebaseAuth.getInstance().currentUser!!.email TODO("Confirm current password")

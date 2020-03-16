@@ -89,8 +89,8 @@ class LatestMessagesActivity : AppCompatActivity() {
         listenForOnlineIndicators()
     }
 
-    private val CHANNEL_ID = "chat_notifications"
-    private val CHANNEL_NAME = "Chat Channel"
+    private val channelId = "chat_notifications"
+    private val channelName = "Chat Channel"
 
     fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
         if (chatMessage.fromId == FirebaseAuth.getInstance().uid || FirebaseManager.ignoreNotificationUid == chatUser.uid) {
@@ -130,7 +130,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             text = chatMessage.text
         }
 
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.image_bird)
             .setContentTitle(chatUser.username)
             .setContentText(text)
@@ -154,10 +154,10 @@ class LatestMessagesActivity : AppCompatActivity() {
     }
 
     private fun createNotificationChannel() {
-        val name = CHANNEL_NAME
+        val name = channelName
         val descriptionText = "Description of channel"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance)
+        val channel = NotificationChannel(channelId, name, importance)
             .apply { description = descriptionText }
 
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -199,8 +199,8 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private fun refreshRecyclerViewMessages() {
         adapter.clear()
-        val sorted = latestMessageMap.toList().sortedByDescending { it.second.time }.toMap()
-        sorted.values.forEach { adapter.add(LatestMessageRow(it)) }
+        val sortedMap = latestMessageMap.toList().sortedByDescending { it.second.time }.toMap()
+        sortedMap.values.forEach { adapter.add(LatestMessageRow(it)) }
     }
 
     private fun listenForLatestMessages() {
@@ -336,18 +336,11 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                if (FirebaseManager.contacts == null) {
-                    return
-                }
-                else if (FirebaseManager.contacts!!.contains(p0.key!!)) {
-                    refreshRecyclerViewMessages()
-                }
-//                if (p0.key!! == aUsername) {
-//                    if (p0.value!! == true) {
-//                        show indicator
-//                    }
-//                    if (p0.value!! == false) {
-//                        hide indicator
+                recyclerLatestMessages.adapter!!.notifyDataSetChanged()
+//                for (i in 0 until adapter.itemCount - 1) {
+//                    val test = adapter.getItem(i) as LatestMessageRow
+//                    if (test.chatPartnerUser!!.uid == p0.key!!) {
+//                        recyclerLatestMessages.adapter!!.notifyItemChanged(i)
 //                    }
 //                }
             }
