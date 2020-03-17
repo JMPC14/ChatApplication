@@ -87,10 +87,25 @@ class ChatLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
-        LatestMessagesActivity().fetchCurrentUser()
-        LatestMessagesActivity().verifyUserLoggedIn()
-        LatestMessagesActivity().fetchContacts()
-        LatestMessagesActivity().fetchBlocklist()
+        if (intent.getParcelableExtra<User>(MyFirebaseMessagingService.NOT_USER_KEY) != null) {
+            FirebaseManager.conversationId = intent.getStringExtra(MyFirebaseMessagingService.CID)
+            val uid = FirebaseAuth.getInstance().uid
+            if (uid == null) {
+                val intent = Intent(this, LauncherActivity::class.java)
+                intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            } else {
+                val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError) {
+                    }
+
+                    override fun onDataChange(p0: DataSnapshot) {
+                        FirebaseManager.user = p0.getValue(User::class.java)
+                    }
+                })
+            }
+        }
 
         toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY) ?:
             intent.getParcelableExtra(LatestMessagesActivity.LAT_USER_KEY) ?:
@@ -100,14 +115,14 @@ class ChatLogActivity : AppCompatActivity() {
         val remoteReply = RemoteInput.getResultsFromIntent(intent)
 
         if (remoteReply != null) {
-            val message = remoteReply.getCharSequence(LatestMessagesActivity.NOTIFICATION_REPLY_KEY) as String
+            val message = remoteReply.getCharSequence(MyFirebaseMessagingService.NOTIFICATION_REPLY_KEY) as String
             FirebaseManager.notificationTempMessage = message
-            toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)
             performSendMessage()
             FirebaseManager.notificationTempMessage = null
+            finish()
 
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            nm.cancel(LatestMessagesActivity.NOTIFICATION_ID)
+            nm.cancel(MyFirebaseMessagingService.NOTIFICATION_ID)
         }
 
         if (savedInstanceState != null) {
@@ -215,7 +230,7 @@ class ChatLogActivity : AppCompatActivity() {
             }
         })
 
-//        listenForMessages()
+        listenForMessages()
     }
 
     override fun onBackPressed() {
@@ -226,7 +241,7 @@ class ChatLogActivity : AppCompatActivity() {
         val payload = JsonObject()
         payload.addProperty("to", FirebaseManager.otherUserToken)
         val data = JsonObject()
-        data.addProperty("title", FirebaseManager.user!!.uid)
+        data.addProperty("title", FirebaseAuth.getInstance().uid)
         data.addProperty("message", FirebaseManager.messageKey)
         payload.add("data", data)
         return payload
@@ -393,7 +408,6 @@ class ChatLogActivity : AppCompatActivity() {
                             }
 
                             val chatMessage = p0.getValue(ChatMessage::class.java)
-                            val currentUser = LatestMessagesActivity.currentUser!!
                             if (chatMessage != null) {
 
                                 var sequentialFrom = false
@@ -421,7 +435,7 @@ class ChatLogActivity : AppCompatActivity() {
                                 val sequential: Boolean?
 
                                 if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
-                                    user = currentUser
+                                    user = FirebaseManager.user
                                     sequential = sequentialFrom
                                 } else {
                                     user = toUser

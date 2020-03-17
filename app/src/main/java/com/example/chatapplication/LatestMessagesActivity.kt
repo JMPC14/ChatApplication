@@ -24,22 +24,17 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.FirebaseMessagingService
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
-import okhttp3.internal.wait
 import java.lang.Exception
 
 class LatestMessagesActivity : AppCompatActivity() {
 
     companion object {
-        var currentUser: User? = null
-        var NOTIFICATION_REPLY_KEY = "Text"
-        var NOTIFICATION_ID = 1
         var channelId = "chat_notifications"
         var channelName = "Chat Channel"
         var LAT_USER_KEY = "LAT_USER_KEY"
@@ -88,8 +83,6 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
 
         fetchCurrentUser()
-
-        verifyUserLoggedIn()
 
         fetchContacts()
 
@@ -143,7 +136,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             .setAutoCancel(true)
             .setLargeIcon(myBitmap)
 
-        val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+        val remoteInput = RemoteInput.Builder(MyFirebaseMessagingService.NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
 
         val replyIntent = Intent(this, ChatLogActivity::class.java)
             .putExtra(LAT_USER_KEY, chatUser)
@@ -154,7 +147,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         builder.addAction(action)
 
         NotificationManagerCompat.from(this)
-            .notify(NOTIFICATION_ID, builder.build())
+            .notify(MyFirebaseMessagingService.NOTIFICATION_ID, builder.build())
     }
 
     private fun createNotificationChannel() {
@@ -168,7 +161,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun fetchContacts() {
+    private fun fetchContacts() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -183,7 +176,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
-    fun fetchBlocklist() {
+    private fun fetchBlocklist() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/blocklist").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -282,7 +275,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         @SuppressLint("SetTextI18n")
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             val chatPartnerId: String?
-            if (chatMessage.fromId == currentUser!!.uid) {
+            if (chatMessage.fromId == FirebaseManager.user!!.uid) {
                 chatPartnerId = chatMessage.toId
                 if (chatMessage.imageUrl != null || chatMessage.fileUrl != null) {
                     viewHolder.itemView.textLatestMessageRow.text = "You sent a file"
@@ -353,8 +346,13 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private val adapter = GroupAdapter<GroupieViewHolder>()
 
-    fun fetchCurrentUser() {
+    private fun fetchCurrentUser() {
         val uid = FirebaseAuth.getInstance().uid
+        if (uid == null) {
+            val intent = Intent(this, LauncherActivity::class.java)
+            intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
             FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(FirebaseManager.token)
@@ -366,24 +364,15 @@ class LatestMessagesActivity : AppCompatActivity() {
                 }
 
                 override fun onDataChange(p0: DataSnapshot) {
-                    currentUser = p0.getValue(User::class.java)
-                    FirebaseManager.user = currentUser
-                    Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
-                    usernameLatestMessages.text = currentUser?.username
-                    Log.d("LatestMessages", "Current user is ${currentUser?.username}")
-                    val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
+                    FirebaseManager.user = p0.getValue(User::class.java)
+                    FirebaseManager.user = FirebaseManager.user
+                    Picasso.get().load(FirebaseManager.user?.profileImageUrl).into(userImageLatestMessages)
+                    usernameLatestMessages.text = FirebaseManager.user?.username
+                    Log.d("LatestMessages", "Current user is ${FirebaseManager.user?.username}")
+                    val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}")
                     onlineRef.setValue(true)
                 }
             })
-        }
-    }
-
-    fun verifyUserLoggedIn() {
-        val uid = FirebaseAuth.getInstance().uid
-        if (uid == null) {
-            val intent = Intent(this, LauncherActivity::class.java)
-            intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
         }
     }
 
@@ -393,7 +382,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 startActivity(Intent(this, ProfileActivity::class.java))
             }
             R.id.sign_out -> {
-                val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
+                val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}")
                 onlineRef.setValue(false)
                 FirebaseAuth.getInstance().signOut()
                 FirebaseManager.attachedFile = null

@@ -13,6 +13,7 @@ import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
@@ -33,7 +34,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         const val FCM_BASE_URL = "https://fcm.googleapis.com/"
         const val FCM_SERVER_KEY = "AIzaSyDmP6Xmw9EVIRY6yLYjmgz6fbnrfgER1BQ"
+        var NOTIFICATION_ID = 1
         var NOT_USER_KEY = "NOT_USER_KEY"
+        var NOTIFICATION_REPLY_KEY = "Text"
+        var CID = "CID"
     }
 
     override fun onNewToken(p0: String) {
@@ -115,20 +119,26 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             notificationBuilder.setContentText("${user!!.username} sent a file")
                         }
 
-                        val remoteInput = RemoteInput.Builder(LatestMessagesActivity.NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+                        val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+
+                        val parsedString: String = message.substringBefore("/")
 
                         val replyIntent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
                             .putExtra(NOT_USER_KEY, user)
+                            .putExtra(CID, parsedString)
                         val replyPendingIntent = PendingIntent.getActivity(this@MyFirebaseMessagingService, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
                         val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
 
                         notificationBuilder.addAction(action)
 
+
+
                         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                         val channel = NotificationChannel(channelId, "Cloud Messaging Service", NotificationManager.IMPORTANCE_DEFAULT)
                         notificationManager.createNotificationChannel(channel)
-                        notificationManager.notify(0, notificationBuilder.build())
+                        NotificationManagerCompat.from(this@MyFirebaseMessagingService)
+                            .notify(NOTIFICATION_ID, notificationBuilder.build())
                     }
                 })
             }
