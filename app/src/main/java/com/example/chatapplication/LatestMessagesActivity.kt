@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
@@ -56,8 +57,6 @@ class LatestMessagesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_latest_messages)
 
         FirebaseMessaging.getInstance().isAutoInitEnabled = true
-
-        MyFirebaseMessagingService()
 
         supportActionBar?.title = "Latest Messages"
 
@@ -169,7 +168,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun fetchContacts() {
+    private fun fetchContacts() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -184,7 +183,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
-    fun fetchBlocklist() {
+    private fun fetchBlocklist() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/blocklist").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -354,7 +353,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private val adapter = GroupAdapter<GroupieViewHolder>()
 
-    fun fetchCurrentUser() {
+    private fun fetchCurrentUser() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
@@ -369,8 +368,8 @@ class LatestMessagesActivity : AppCompatActivity() {
                 override fun onDataChange(p0: DataSnapshot) {
                     currentUser = p0.getValue(User::class.java)
                     FirebaseManager.user = currentUser
-//                    Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
-//                    usernameLatestMessages.text = currentUser?.username
+                    Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
+                    usernameLatestMessages.text = currentUser?.username
                     Log.d("LatestMessages", "Current user is ${currentUser?.username}")
                     val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
                     onlineRef.setValue(true)
@@ -379,7 +378,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
     }
 
-    fun verifyUserLoggedIn() {
+    private fun verifyUserLoggedIn() {
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {
             val intent = Intent(this, LauncherActivity::class.java)

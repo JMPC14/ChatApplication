@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -36,8 +37,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(p0: String) {
+        val uid = FirebaseAuth.getInstance().uid
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
+            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(FirebaseManager.token)
         }
     }
 

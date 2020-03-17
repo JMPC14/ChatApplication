@@ -87,13 +87,10 @@ class ChatLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
-        if (intent.getParcelableExtra<User>(MyFirebaseMessagingService.NOT_USER_KEY) != null) {
-            LatestMessagesActivity().fetchCurrentUser()
-            LatestMessagesActivity().verifyUserLoggedIn()
-            LatestMessagesActivity().fetchContacts()
-            LatestMessagesActivity().fetchBlocklist()
-            toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)
-        }
+        toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY) ?:
+            intent.getParcelableExtra(LatestMessagesActivity.LAT_USER_KEY) ?:
+            intent.getParcelableExtra(NewMessageActivity.USER_KEY)
+        FirebaseManager.otherUser = toUser
 
         val remoteReply = RemoteInput.getResultsFromIntent(intent)
 
@@ -124,14 +121,6 @@ class ChatLogActivity : AppCompatActivity() {
 
         recyclerChatLog.adapter = adapter
         recyclerChatLog.layoutManager = LinearLayoutManager(this)
-
-        if (toUser == null) {
-            toUser = intent.getParcelableExtra(LatestMessagesActivity.LAT_USER_KEY)
-        }
-        if (toUser == null) {
-            toUser = intent.getParcelableExtra(NewMessageActivity.USER_KEY)
-        }
-        FirebaseManager.otherUser = toUser
 
         supportActionBar?.title = toUser?.username
         supportActionBar?.elevation = 0f
