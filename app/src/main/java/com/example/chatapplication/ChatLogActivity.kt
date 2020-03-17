@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -159,6 +160,14 @@ class ChatLogActivity : AppCompatActivity() {
             }
         })
 
+        enterMessageText.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                performSendMessage()
+                return@OnKeyListener true
+            }
+            false
+        })
+
         sendMessageButton.setOnClickListener {
             if (imageAttachedLayout.visibility == View.VISIBLE) {
                 uploadImage()
@@ -225,10 +234,6 @@ class ChatLogActivity : AppCompatActivity() {
         })
 
         listenForMessages()
-    }
-
-    override fun onBackPressed() {
-        startActivity(Intent(this, LatestMessagesActivity::class.java))
     }
 
     private fun buildNotificationPayload(): JsonObject? {
@@ -454,32 +459,6 @@ class ChatLogActivity : AppCompatActivity() {
         })
     }
 
-    class ChatMessage(
-        val id: String,
-        val text: String,
-        val fromId: String,
-        val toId: String,
-        val timestamp: String,
-        val time: Long
-    ) {
-        constructor(): this("", "", "", "", "", -1)
-
-        var imageUrl: String? = null
-        var fileUrl: String? = null
-        var fileSize: Double? = null
-        var fileType: String? = null
-
-        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, time: Long, imageUrl: String) : this(id, text, fromId, toId, timestamp, time) {
-            this.imageUrl = imageUrl
-        }
-
-        constructor(id: String, text: String, fromId: String, toId: String, timestamp: String, time: Long, fileUrl: String, fileSize: Double, fileType: String) : this(id, text, fromId, toId, timestamp, time) {
-            this.fileUrl = fileUrl
-            this.fileSize = fileSize
-            this.fileType = fileType
-        }
-    }
-
     private fun performSendMessage() {
         val text = if (FirebaseManager.notificationTempMessage != null) {
             FirebaseManager.notificationTempMessage
@@ -534,7 +513,14 @@ class ChatLogActivity : AppCompatActivity() {
                     )
                 }
                 else -> {
-                    ChatMessage(ref.key!!, text, fromId, toId, timestamp, time)
+                    ChatMessage(
+                        ref.key!!,
+                        text,
+                        fromId,
+                        toId,
+                        timestamp,
+                        time
+                    )
                 }
             }
 
@@ -569,7 +555,6 @@ class ChatLogActivity : AppCompatActivity() {
                         t: Throwable?
                     ) {}
                 })
-
 
             FirebaseManager.attachedImage = null
             FirebaseManager.attachedFile = null

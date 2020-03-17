@@ -35,8 +35,6 @@ import java.lang.Exception
 class LatestMessagesActivity : AppCompatActivity() {
 
     companion object {
-        var channelId = "chat_notifications"
-        var channelName = "Chat Channel"
         var LAT_USER_KEY = "LAT_USER_KEY"
     }
 
@@ -89,78 +87,6 @@ class LatestMessagesActivity : AppCompatActivity() {
         listenForOnlineIndicators()
     }
 
-    fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
-        if (chatMessage.fromId == FirebaseAuth.getInstance().uid || FirebaseManager.ignoreNotificationUid == chatUser.uid) {
-            return
-        }
-        createNotificationChannel()
-
-        val notIntent = Intent(this, ChatLogActivity::class.java)
-            .putExtra(LAT_USER_KEY, chatUser)
-
-        val pendingIntent = TaskStackBuilder.create(this)
-            .addNextIntentWithParentStack(notIntent)
-            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        var myBitmap: Bitmap? = null
-
-        Picasso.get().load(chatUser.profileImageUrl).into(object: com.squareup.picasso.Target {
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-            }
-
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                val newBitmap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200)
-                myBitmap = RoundedBitmapDrawableFactory.create(resources, newBitmap).apply { isCircular = true }.toBitmap()
-            }
-
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-            }
-        })
-
-        var text: String? = null
-
-        if (chatMessage.text.isEmpty() && chatMessage.imageUrl != null) {
-            text = "${chatUser.username} sent an image"
-        } else if (chatMessage.text.isEmpty() && chatMessage.fileUrl != null) {
-            text = "${chatUser.username} sent a file"
-        } else if (chatMessage.text.isNotEmpty()) {
-            text = chatMessage.text
-        }
-
-        val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.image_bird)
-            .setContentTitle(chatUser.username)
-            .setContentText(text)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .setLargeIcon(myBitmap)
-
-        val remoteInput = RemoteInput.Builder(MyFirebaseMessagingService.NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
-
-        val replyIntent = Intent(this, ChatLogActivity::class.java)
-            .putExtra(LAT_USER_KEY, chatUser)
-        val replyPendingIntent = PendingIntent.getActivity(this, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
-
-        builder.addAction(action)
-
-        NotificationManagerCompat.from(this)
-            .notify(MyFirebaseMessagingService.NOTIFICATION_ID, builder.build())
-    }
-
-    private fun createNotificationChannel() {
-        val name = channelName
-        val descriptionText = "Description of channel"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(channelId, name, importance)
-            .apply { description = descriptionText }
-
-        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-    }
-
     private fun fetchContacts() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
@@ -192,7 +118,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
-    val latestMessageMap = HashMap<String, ChatLogActivity.ChatMessage>()
+    val latestMessageMap = HashMap<String, ChatMessage>()
 
     private fun refreshRecyclerViewMessages() {
         adapter.clear()
@@ -208,7 +134,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
 
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-                val chatMessage = p0.getValue(ChatLogActivity.ChatMessage::class.java) ?: return
+                val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
 
                 if (FirebaseManager.blocklist != null ) {
                     if (FirebaseManager.blocklist!!.contains(chatMessage.fromId) || FirebaseManager.blocklist!!.contains(chatMessage.toId)) { return }
@@ -219,7 +145,7 @@ class LatestMessagesActivity : AppCompatActivity() {
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                val chatMessage = p0.getValue(ChatLogActivity.ChatMessage::class.java) ?: return
+                val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
@@ -233,7 +159,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
-    class LatestMessageRow(val chatMessage : ChatLogActivity.ChatMessage) : Item<GroupieViewHolder>() {
+    class LatestMessageRow(val chatMessage : ChatMessage) : Item<GroupieViewHolder>() {
         var chatPartnerUser: User? = null
 
         override fun getLayout(): Int {
@@ -319,12 +245,11 @@ class LatestMessagesActivity : AppCompatActivity() {
             val intent = Intent(this, LauncherActivity::class.java)
             intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-        }
+        } else {
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
             FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(FirebaseManager.token)
         }
-        if (uid != null) {
             val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {

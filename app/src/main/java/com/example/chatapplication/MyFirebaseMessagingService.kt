@@ -28,12 +28,12 @@ import com.google.firebase.messaging.RemoteMessage
 import com.squareup.picasso.Picasso
 import java.lang.Exception
 
-
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
         const val FCM_BASE_URL = "https://fcm.googleapis.com/"
         const val FCM_SERVER_KEY = "AIzaSyDmP6Xmw9EVIRY6yLYjmgz6fbnrfgER1BQ"
+        var channelId = "chat_notifications"
         var NOTIFICATION_ID = 1
         var NOT_USER_KEY = "NOT_USER_KEY"
         var NOTIFICATION_REPLY_KEY = "Text"
@@ -64,19 +64,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(uid: String, message: String) {
-        val channelId = LatestMessagesActivity.channelId
-        val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
+        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         var myBitmap: Bitmap? = null
         var user: User?
-        var chatMessage: ChatLogActivity.ChatMessage?
+        var chatMessage: ChatMessage?
 
         FirebaseDatabase.getInstance().getReference("/conversations/$message").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                chatMessage = p0.getValue(ChatLogActivity.ChatMessage::class.java)
+                chatMessage = p0.getValue(ChatMessage::class.java)
 
                 FirebaseDatabase.getInstance().getReference("/users/$uid").addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
@@ -113,10 +111,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             .setAutoCancel(true)
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent)
-                        if (chatMessage!!.text.isNotEmpty()) {
-                            notificationBuilder.setContentText(chatMessage!!.text)
-                        } else  {
+
+                        if (chatMessage!!.text.isEmpty() && chatMessage!!.imageUrl != null) {
+                            notificationBuilder.setContentText("${user!!.username} sent an image")
+                        } else if (chatMessage!!.text.isEmpty() && chatMessage!!.fileUrl != null) {
                             notificationBuilder.setContentText("${user!!.username} sent a file")
+                        } else if (chatMessage!!.text.isNotEmpty()) {
+                            notificationBuilder.setContentText(chatMessage!!.text)
                         }
 
                         val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
@@ -131,8 +132,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
 
                         notificationBuilder.addAction(action)
-
-
 
                         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                         val channel = NotificationChannel(channelId, "Cloud Messaging Service", NotificationManager.IMPORTANCE_DEFAULT)
