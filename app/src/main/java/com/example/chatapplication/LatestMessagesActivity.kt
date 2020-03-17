@@ -168,7 +168,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun fetchContacts() {
+    fun fetchContacts() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -183,7 +183,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
-    private fun fetchBlocklist() {
+    fun fetchBlocklist() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/blocklist").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -353,7 +353,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private val adapter = GroupAdapter<GroupieViewHolder>()
 
-    private fun fetchCurrentUser() {
+    fun fetchCurrentUser() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
@@ -378,7 +378,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
     }
 
-    private fun verifyUserLoggedIn() {
+    fun verifyUserLoggedIn() {
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {
             val intent = Intent(this, LauncherActivity::class.java)

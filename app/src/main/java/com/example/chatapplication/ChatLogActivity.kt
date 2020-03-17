@@ -87,6 +87,11 @@ class ChatLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
+        LatestMessagesActivity().fetchCurrentUser()
+        LatestMessagesActivity().verifyUserLoggedIn()
+        LatestMessagesActivity().fetchContacts()
+        LatestMessagesActivity().fetchBlocklist()
+
         toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY) ?:
             intent.getParcelableExtra(LatestMessagesActivity.LAT_USER_KEY) ?:
             intent.getParcelableExtra(NewMessageActivity.USER_KEY)
@@ -210,7 +215,7 @@ class ChatLogActivity : AppCompatActivity() {
             }
         })
 
-        listenForMessages()
+//        listenForMessages()
     }
 
     override fun onBackPressed() {
@@ -308,8 +313,10 @@ class ChatLogActivity : AppCompatActivity() {
         val toId = toUser!!.uid
         var cid: String
         var newRef: DatabaseReference
-        if (FirebaseManager.blocklist != null && FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
-            return
+        if (FirebaseManager.blocklist != null) {
+            if (FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
+                return
+            }
         }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
