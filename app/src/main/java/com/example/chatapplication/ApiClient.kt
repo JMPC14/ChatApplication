@@ -8,13 +8,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
 
-    val apiService: NotificationApiService
+    val apiService: ApiService
         get() = Retrofit.Builder()
             .baseUrl(MyFirebaseMessagingService.FCM_BASE_URL)
             .client(provideClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(NotificationApiService::class.java)
+            .create(ApiService::class.java)
 
     private fun provideClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()

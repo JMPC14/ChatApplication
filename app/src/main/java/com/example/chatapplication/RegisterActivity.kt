@@ -4,15 +4,12 @@ import android.content.Intent
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 
@@ -121,9 +118,4 @@ class RegisterActivity : AppCompatActivity() {
             }
         contactRef.setValue(listOf<String>())
     }
-}
-
-@Parcelize
-class User(val uid: String, var username: String, var profileImageUrl: String, var email: String) : Parcelable {
-    constructor() : this("", "", "", "")
 }

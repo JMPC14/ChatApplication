@@ -100,16 +100,16 @@ class NewMessageActivity : AppCompatActivity() {
         }
         recyclerNewMessage.adapter = adapter
     }
-}
 
-class UserItem(val user: User): Item<GroupieViewHolder>() {
+    inner class UserItem(val user: User): Item<GroupieViewHolder>() {
 
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.itemView.usernameNewMessage.text = user.username
-        Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageNewMessage)
-    }
+        override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+            viewHolder.itemView.usernameNewMessage.text = user.username
+            Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageNewMessage)
+        }
 
-    override fun getLayout(): Int {
-        return R.layout.user_row_newmessage
+        override fun getLayout(): Int {
+            return R.layout.user_row_newmessage
+        }
     }
 }

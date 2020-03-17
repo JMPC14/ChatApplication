@@ -6,8 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
-
-interface NotificationApiService {
+interface ApiService {
     @Headers(
         "Authorization: key=" + MyFirebaseMessagingService.FCM_SERVER_KEY,
         "Content-Type: application/json"

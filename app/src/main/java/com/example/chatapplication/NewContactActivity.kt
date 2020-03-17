@@ -67,16 +67,16 @@ class NewContactActivity : AppCompatActivity() {
             }
         })
     }
-}
 
-class NewContactItem(val user: User): Item<GroupieViewHolder>() {
+    inner class NewContactItem(val user: User): Item<GroupieViewHolder>() {
 
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.itemView.usernameContactRow.text = user.username
-        Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.userImageContactRow)
-    }
+        override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+            viewHolder.itemView.usernameContactRow.text = user.username
+            Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.userImageContactRow)
+        }
 
-    override fun getLayout(): Int {
-        return R.layout.contact_row
+        override fun getLayout(): Int {
+            return R.layout.contact_row
+        }
     }
 }
