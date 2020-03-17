@@ -30,17 +30,18 @@ import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
+import okhttp3.internal.wait
 import java.lang.Exception
 
 class LatestMessagesActivity : AppCompatActivity() {
 
     companion object {
         var currentUser: User? = null
-        var NOT_USER_KEY = "NOT_USER_KEY"
         var NOTIFICATION_REPLY_KEY = "Text"
         var NOTIFICATION_ID = 1
         var channelId = "chat_notifications"
         var channelName = "Chat Channel"
+        var LAT_USER_KEY = "LAT_USER_KEY"
     }
 
     override fun onResume() {
@@ -75,7 +76,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 return@setOnItemClickListener
             }
             val intent = Intent(this, ChatLogActivity::class.java)
-            intent.putExtra(NewMessageActivity.USER_KEY, row.chatPartnerUser)
+            intent.putExtra(LAT_USER_KEY, row.chatPartnerUser)
             startActivity(intent)
         }
 
@@ -97,14 +98,13 @@ class LatestMessagesActivity : AppCompatActivity() {
     }
 
     fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
-        return
         if (chatMessage.fromId == FirebaseAuth.getInstance().uid || FirebaseManager.ignoreNotificationUid == chatUser.uid) {
             return
         }
         createNotificationChannel()
 
         val notIntent = Intent(this, ChatLogActivity::class.java)
-            .putExtra(NOT_USER_KEY, chatUser)
+            .putExtra(LAT_USER_KEY, chatUser)
 
         val pendingIntent = TaskStackBuilder.create(this)
             .addNextIntentWithParentStack(notIntent)
@@ -147,7 +147,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
 
         val replyIntent = Intent(this, ChatLogActivity::class.java)
-            .putExtra(NOT_USER_KEY, chatUser)
+            .putExtra(LAT_USER_KEY, chatUser)
         val replyPendingIntent = PendingIntent.getActivity(this, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
@@ -169,7 +169,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun fetchContacts() {
+    fun fetchContacts() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/contacts").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -184,7 +184,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
-    private fun fetchBlocklist() {
+    fun fetchBlocklist() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseDatabase.getInstance().getReference("/users/$uid/blocklist").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -226,21 +226,21 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-                val key = p0.key!!
-                val keyValue = p0.child("displayed").value
-                val notRef = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
-                notRef.addListenerForSingleValueEvent(object: ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {
-                    }
-
-                    override fun onDataChange(p0: DataSnapshot) {
-                        val chatUser = p0.getValue(User::class.java)
-                        if (keyValue != true) {
-                            displayNotification(chatMessage, chatUser!!)
-                        }
-                        ref.child(key).child("displayed").setValue(true)
-                    }
-                })
+//                val key = p0.key!!
+//                val keyValue = p0.child("displayed").value
+//                val notRef = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
+//                notRef.addListenerForSingleValueEvent(object: ValueEventListener {
+//                    override fun onCancelled(p0: DatabaseError) {
+//                    }
+//
+//                    override fun onDataChange(p0: DataSnapshot) {
+//                        val chatUser = p0.getValue(User::class.java)
+//                        if (keyValue != true) {
+//                            displayNotification(chatMessage, chatUser!!)
+//                        }
+//                        ref.child(key).child("displayed").setValue(true)
+//                    }
+//                })
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
@@ -248,21 +248,21 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-                val key = p0.key!!
-                val keyValue = p0.child("displayed").value
-                val notRef2 = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
-                notRef2.addListenerForSingleValueEvent(object: ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {
-                    }
-
-                    override fun onDataChange(p0: DataSnapshot) {
-                        val chatUser = p0.getValue(User::class.java)
-                        if (keyValue != true) {
-                            displayNotification(chatMessage, chatUser!!)
-                        }
-                        ref.child(key).child("displayed").setValue(true)
-                    }
-                })
+//                val key = p0.key!!
+//                val keyValue = p0.child("displayed").value
+//                val notRef2 = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
+//                notRef2.addListenerForSingleValueEvent(object: ValueEventListener {
+//                    override fun onCancelled(p0: DatabaseError) {
+//                    }
+//
+//                    override fun onDataChange(p0: DataSnapshot) {
+//                        val chatUser = p0.getValue(User::class.java)
+//                        if (keyValue != true) {
+//                            displayNotification(chatMessage, chatUser!!)
+//                        }
+//                        ref.child(key).child("displayed").setValue(true)
+//                    }
+//                })
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -354,7 +354,7 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     private val adapter = GroupAdapter<GroupieViewHolder>()
 
-    private fun fetchCurrentUser() {
+    fun fetchCurrentUser() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
@@ -369,8 +369,8 @@ class LatestMessagesActivity : AppCompatActivity() {
                 override fun onDataChange(p0: DataSnapshot) {
                     currentUser = p0.getValue(User::class.java)
                     FirebaseManager.user = currentUser
-                    Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
-                    usernameLatestMessages.text = currentUser?.username
+//                    Picasso.get().load(currentUser?.profileImageUrl).into(userImageLatestMessages)
+//                    usernameLatestMessages.text = currentUser?.username
                     Log.d("LatestMessages", "Current user is ${currentUser?.username}")
                     val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${currentUser?.uid}")
                     onlineRef.setValue(true)
@@ -379,7 +379,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         }
     }
 
-    private fun verifyUserLoggedIn() {
+    fun verifyUserLoggedIn() {
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {
             val intent = Intent(this, LauncherActivity::class.java)

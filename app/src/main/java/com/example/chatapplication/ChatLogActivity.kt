@@ -87,12 +87,20 @@ class ChatLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
+        if (intent.getParcelableExtra<User>(MyFirebaseMessagingService.NOT_USER_KEY) != null) {
+            LatestMessagesActivity().fetchCurrentUser()
+            LatestMessagesActivity().verifyUserLoggedIn()
+            LatestMessagesActivity().fetchContacts()
+            LatestMessagesActivity().fetchBlocklist()
+            toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)
+        }
+
         val remoteReply = RemoteInput.getResultsFromIntent(intent)
 
         if (remoteReply != null) {
             val message = remoteReply.getCharSequence(LatestMessagesActivity.NOTIFICATION_REPLY_KEY) as String
             FirebaseManager.notificationTempMessage = message
-            toUser = intent.getParcelableExtra(LatestMessagesActivity.NOT_USER_KEY)
+            toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)
             performSendMessage()
             FirebaseManager.notificationTempMessage = null
 
@@ -117,7 +125,9 @@ class ChatLogActivity : AppCompatActivity() {
         recyclerChatLog.adapter = adapter
         recyclerChatLog.layoutManager = LinearLayoutManager(this)
 
-        toUser = intent.getParcelableExtra(LatestMessagesActivity.NOT_USER_KEY)
+        if (toUser == null) {
+            toUser = intent.getParcelableExtra(LatestMessagesActivity.LAT_USER_KEY)
+        }
         if (toUser == null) {
             toUser = intent.getParcelableExtra(NewMessageActivity.USER_KEY)
         }
@@ -214,6 +224,10 @@ class ChatLogActivity : AppCompatActivity() {
         listenForMessages()
     }
 
+    override fun onBackPressed() {
+        startActivity(Intent(this, LatestMessagesActivity::class.java))
+    }
+
     private fun buildNotificationPayload(): JsonObject? {
         val payload = JsonObject()
         payload.addProperty("to", FirebaseManager.otherUserToken)
@@ -305,7 +319,7 @@ class ChatLogActivity : AppCompatActivity() {
         val toId = toUser!!.uid
         var cid: String
         var newRef: DatabaseReference
-        if (FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
+        if (FirebaseManager.blocklist != null && FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
             return
         }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
@@ -998,6 +1012,11 @@ class ChatLogActivity : AppCompatActivity() {
                         }
                     }
                 })
+            }
+            android.R.id.home -> {
+                if (toUser == intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)) {
+                    startActivity(Intent(this, LatestMessagesActivity::class.java))
+                }
             }
         }
         return super.onOptionsItemSelected(item)

@@ -3,6 +3,7 @@ package com.example.chatapplication
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -12,6 +13,7 @@ import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
 import com.google.firebase.database.DataSnapshot
@@ -30,6 +32,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         const val FCM_BASE_URL = "https://fcm.googleapis.com/"
         const val FCM_SERVER_KEY = "AIzaSyDmP6Xmw9EVIRY6yLYjmgz6fbnrfgER1BQ"
+        var NOT_USER_KEY = "NOT_USER_KEY"
     }
 
     override fun onNewToken(p0: String) {
@@ -54,8 +57,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(uid: String, message: String) {
-        val intent = Intent(this, ChatLogActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         val channelId = LatestMessagesActivity.channelId
         val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
@@ -90,14 +91,37 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             }
                         })
 
+
+                        val intent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
+                        intent.putExtra(NOT_USER_KEY, user)
+
+                        val pendingIntent = TaskStackBuilder.create(this@MyFirebaseMessagingService)
+                            .addNextIntent(intent)
+                            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
                         val notificationBuilder = NotificationCompat.Builder(this@MyFirebaseMessagingService, channelId)
                             .setSmallIcon(R.drawable.image_bird)
                             .setLargeIcon(myBitmap)
                             .setContentTitle(user!!.username)
-                            .setContentText(chatMessage!!.text)
                             .setAutoCancel(true)
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent)
+                        if (chatMessage!!.text.isNotEmpty()) {
+                            notificationBuilder.setContentText(chatMessage!!.text)
+                        } else  {
+                            notificationBuilder.setContentText("${user!!.username} sent a file")
+                        }
+
+                        val remoteInput = RemoteInput.Builder(LatestMessagesActivity.NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+
+                        val replyIntent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
+                            .putExtra(NOT_USER_KEY, user)
+                        val replyPendingIntent = PendingIntent.getActivity(this@MyFirebaseMessagingService, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+                        val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
+
+                        notificationBuilder.addAction(action)
+
                         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                         val channel = NotificationChannel(channelId, "Cloud Messaging Service", NotificationManager.IMPORTANCE_DEFAULT)
                         notificationManager.createNotificationChannel(channel)
