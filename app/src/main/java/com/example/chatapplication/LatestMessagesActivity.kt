@@ -211,28 +211,11 @@ class LatestMessagesActivity : AppCompatActivity() {
                 val chatMessage = p0.getValue(ChatLogActivity.ChatMessage::class.java) ?: return
 
                 if (FirebaseManager.blocklist != null ) {
-                    if (FirebaseManager.blocklist!!.contains(chatMessage.fromId) || FirebaseManager.blocklist!!.contains(chatMessage.toId)) {
-                        return
-                    }
+                    if (FirebaseManager.blocklist!!.contains(chatMessage.fromId) || FirebaseManager.blocklist!!.contains(chatMessage.toId)) { return }
                 }
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-//                val key = p0.key!!
-//                val keyValue = p0.child("displayed").value
-//                val notRef = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
-//                notRef.addListenerForSingleValueEvent(object: ValueEventListener {
-//                    override fun onCancelled(p0: DatabaseError) {
-//                    }
-//
-//                    override fun onDataChange(p0: DataSnapshot) {
-//                        val chatUser = p0.getValue(User::class.java)
-//                        if (keyValue != true) {
-//                            displayNotification(chatMessage, chatUser!!)
-//                        }
-//                        ref.child(key).child("displayed").setValue(true)
-//                    }
-//                })
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
@@ -240,21 +223,6 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
-//                val key = p0.key!!
-//                val keyValue = p0.child("displayed").value
-//                val notRef2 = FirebaseDatabase.getInstance().getReference("/users/${chatMessage.fromId}")
-//                notRef2.addListenerForSingleValueEvent(object: ValueEventListener {
-//                    override fun onCancelled(p0: DatabaseError) {
-//                    }
-//
-//                    override fun onDataChange(p0: DataSnapshot) {
-//                        val chatUser = p0.getValue(User::class.java)
-//                        if (keyValue != true) {
-//                            displayNotification(chatMessage, chatUser!!)
-//                        }
-//                        ref.child(key).child("displayed").setValue(true)
-//                    }
-//                })
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -301,8 +269,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                     }
                     viewHolder.itemView.usernameLatestMessageRow.text = chatPartnerUser?.username
 
-                    val targetItemView = viewHolder.itemView.userImageLatestMessageRow
-                    Picasso.get().load(chatPartnerUser?.profileImageUrl).into(targetItemView)
+                    Picasso.get().load(chatPartnerUser?.profileImageUrl).into(viewHolder.itemView.userImageLatestMessageRow)
                 }
             })
 
@@ -365,12 +332,10 @@ class LatestMessagesActivity : AppCompatActivity() {
 
                 override fun onDataChange(p0: DataSnapshot) {
                     FirebaseManager.user = p0.getValue(User::class.java)
-                    FirebaseManager.user = FirebaseManager.user
                     Picasso.get().load(FirebaseManager.user?.profileImageUrl).into(userImageLatestMessages)
                     usernameLatestMessages.text = FirebaseManager.user?.username
                     Log.d("LatestMessages", "Current user is ${FirebaseManager.user?.username}")
-                    val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}")
-                    onlineRef.setValue(true)
+                    FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}").setValue(true)
                 }
             })
         }
@@ -382,8 +347,8 @@ class LatestMessagesActivity : AppCompatActivity() {
                 startActivity(Intent(this, ProfileActivity::class.java))
             }
             R.id.sign_out -> {
-                val onlineRef = FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}")
-                onlineRef.setValue(false)
+                FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}").setValue(false)
+                adapter.clear()
                 FirebaseAuth.getInstance().signOut()
                 FirebaseManager.attachedFile = null
                 FirebaseManager.attachedFileSize = null

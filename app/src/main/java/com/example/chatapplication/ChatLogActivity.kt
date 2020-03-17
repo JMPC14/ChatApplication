@@ -5,9 +5,6 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -20,8 +17,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.RemoteInput
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatapplication.ApiClient.apiService
@@ -44,7 +39,6 @@ import kotlinx.android.synthetic.main.chat_message_to_image.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
@@ -328,11 +322,7 @@ class ChatLogActivity : AppCompatActivity() {
         val toId = toUser!!.uid
         var cid: String
         var newRef: DatabaseReference
-        if (FirebaseManager.blocklist != null) {
-            if (FirebaseManager.blocklist!!.contains(toUser!!.uid)) {
-                return
-            }
-        }
+        if (FirebaseManager.blocklist != null && FirebaseManager.blocklist!!.contains(toUser!!.uid)) { return }
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onCancelled(p0: DatabaseError) {
@@ -403,9 +393,7 @@ class ChatLogActivity : AppCompatActivity() {
                         }
 
                         override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-                            if (p0.child("hidden").value == true) {
-                                return
-                            }
+                            if (p0.child("hidden").value == true) { return }
 
                             val chatMessage = p0.getValue(ChatMessage::class.java)
                             if (chatMessage != null) {

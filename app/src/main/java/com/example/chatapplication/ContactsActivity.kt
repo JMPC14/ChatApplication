@@ -3,6 +3,7 @@ package com.example.chatapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
@@ -51,6 +52,10 @@ class ContactsActivity : AppCompatActivity() {
                 })
         }
         recyclerContacts.adapter = adapter
+
+        if (adapter.itemCount == 0) {
+            emptyContacts.visibility = View.VISIBLE
+        }
     }
 
     inner class ContactItem(private val contact: User) : Item<GroupieViewHolder>() {

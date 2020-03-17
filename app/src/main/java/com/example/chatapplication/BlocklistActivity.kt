@@ -2,6 +2,7 @@ package com.example.chatapplication
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.DataSnapshot
@@ -45,6 +46,10 @@ class BlocklistActivity : AppCompatActivity() {
                 })
         }
         recyclerBlocklist.adapter = adapter
+
+        if (adapter.itemCount == 0) {
+            emptyBlockListText.visibility = View.VISIBLE
+        }
     }
 
     inner class BlocklistItem(private val blockedUser: User) : Item<GroupieViewHolder>() {

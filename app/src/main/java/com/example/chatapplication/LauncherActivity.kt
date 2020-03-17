@@ -14,13 +14,11 @@ class LauncherActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         loginLauncher.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, LoginActivity::class.java))
         }
 
         createAccountLauncher.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.chatapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_profile.*
 
@@ -31,17 +32,16 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
-        val user = FirebaseManager.user
-
-        Picasso.get().load(user?.profileImageUrl).into(userImageProfile)
-        usernameTextViewProfile.text = user?.username
-        emailTextViewProfile.text = user?.email
+        Picasso.get().load(FirebaseManager.user!!.profileImageUrl).into(userImageProfile)
+        usernameTextViewProfile.text = FirebaseManager.user!!.username
+        emailTextViewProfile.text = FirebaseManager.user!!.email
     }
 
     private fun displayOtherUser(otherUser: User) {
         supportActionBar?.title = otherUser.username
 
         editProfile.isEnabled = false
+        editProfile.visibility = View.GONE
 
         Picasso.get().load(otherUser.profileImageUrl).into(userImageProfile)
         usernameTextViewProfile.text = otherUser.username
