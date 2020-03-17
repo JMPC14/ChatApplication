@@ -14,4 +14,7 @@ object FirebaseManager {
     var latestMessageSeen: String? = null
     var latestMessageOtherUserSeen: String? = null
     var conversationId: String? = null
+    var token: String? = null
+    var otherUserToken: String? = null
+    var messageKey: String? = null
 }

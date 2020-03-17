@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
@@ -38,6 +39,8 @@ class LatestMessagesActivity : AppCompatActivity() {
         var NOT_USER_KEY = "NOT_USER_KEY"
         var NOTIFICATION_REPLY_KEY = "Text"
         var NOTIFICATION_ID = 1
+        var channelId = "chat_notifications"
+        var channelName = "Chat Channel"
     }
 
     override fun onResume() {
@@ -50,6 +53,10 @@ class LatestMessagesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_latest_messages)
+
+        FirebaseMessaging.getInstance().isAutoInitEnabled = true
+
+        MyFirebaseMessagingService()
 
         supportActionBar?.title = "Latest Messages"
 
@@ -89,10 +96,8 @@ class LatestMessagesActivity : AppCompatActivity() {
         listenForOnlineIndicators()
     }
 
-    private val channelId = "chat_notifications"
-    private val channelName = "Chat Channel"
-
     fun displayNotification(chatMessage: ChatLogActivity.ChatMessage, chatUser: User) {
+        return
         if (chatMessage.fromId == FirebaseAuth.getInstance().uid || FirebaseManager.ignoreNotificationUid == chatUser.uid) {
             return
         }
@@ -337,12 +342,6 @@ class LatestMessagesActivity : AppCompatActivity() {
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 recyclerLatestMessages.adapter!!.notifyDataSetChanged()
-//                for (i in 0 until adapter.itemCount - 1) {
-//                    val test = adapter.getItem(i) as LatestMessageRow
-//                    if (test.chatPartnerUser!!.uid == p0.key!!) {
-//                        recyclerLatestMessages.adapter!!.notifyItemChanged(i)
-//                    }
-//                }
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
@@ -356,11 +355,11 @@ class LatestMessagesActivity : AppCompatActivity() {
     private val adapter = GroupAdapter<GroupieViewHolder>()
 
     private fun fetchCurrentUser() {
-        val token: String? = null
-        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
-            val token = it.result?.token
-        }
         val uid = FirebaseAuth.getInstance().uid
+        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
+            FirebaseManager.token = it.result?.token
+            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(FirebaseManager.token)
+        }
         if (uid != null) {
             val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {

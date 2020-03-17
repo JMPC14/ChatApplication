@@ -5,8 +5,10 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.media.ThumbnailUtils
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,13 +16,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.RemoteInput
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatapplication.ApiClient.apiService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
@@ -33,6 +41,10 @@ import kotlinx.android.synthetic.main.chat_message_from_image.view.*
 import kotlinx.android.synthetic.main.chat_message_to.view.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
@@ -190,7 +202,26 @@ class ChatLogActivity : AppCompatActivity() {
             true
         }
 
+        FirebaseDatabase.getInstance().getReference("/users/${toUser!!.uid}").child("token").addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                FirebaseManager.otherUserToken = p0.value.toString()
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+            }
+        })
+
         listenForMessages()
+    }
+
+    private fun buildNotificationPayload(): JsonObject? {
+        val payload = JsonObject()
+        payload.addProperty("to", FirebaseManager.otherUserToken)
+        val data = JsonObject()
+        data.addProperty("title", FirebaseManager.user!!.uid)
+        data.addProperty("message", FirebaseManager.messageKey)
+        payload.add("data", data)
+        return payload
     }
 
     private fun updateLatestMessageSeen() {
@@ -447,6 +478,7 @@ class ChatLogActivity : AppCompatActivity() {
         val fromId = FirebaseAuth.getInstance().uid ?: return
         val toId = toUser!!.uid
         val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}").push()
+        FirebaseManager.messageKey = "${FirebaseManager.conversationId}/${ref.key}"
         val chatMessage: ChatMessage?
         val time = System.currentTimeMillis() / 1000
         val year = LocalDateTime.now().year
@@ -507,6 +539,25 @@ class ChatLogActivity : AppCompatActivity() {
             val latestMessageToRef =
                 FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
             latestMessageToRef.setValue(chatMessage)
+
+            val payload = buildNotificationPayload()
+            apiService.sendNotification(payload)!!.enqueue(
+                object : Callback<JsonObject?> {
+                    override fun onResponse(
+                        call: Call<JsonObject?>?,
+                        response: Response<JsonObject?>
+                    ) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(this@ChatLogActivity, "Notification send successful", Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                    override fun onFailure(
+                        call: Call<JsonObject?>?,
+                        t: Throwable?
+                    ) {}
+                })
+
 
             FirebaseManager.attachedImage = null
             FirebaseManager.attachedFile = null
