@@ -40,9 +40,15 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        FirebaseManager.foreground = true
         adapter.clear()
         fetchBlocklist()
         refreshRecyclerViewMessages()
+    }
+
+    override fun onPause() {
+        FirebaseManager.foreground = false
+        super.onPause()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

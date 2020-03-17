@@ -64,6 +64,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(uid: String, message: String) {
+        if ((FirebaseManager.foreground == true) || FirebaseManager.ignoreNotificationUid != null && FirebaseManager.ignoreNotificationUid == uid) {
+            return
+        }
+
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         var myBitmap: Bitmap? = null
         var user: User?

@@ -17,4 +17,5 @@ object FirebaseManager {
     var token: String? = null
     var otherUserToken: String? = null
     var messageKey: String? = null
+    var foreground: Boolean? = null
 }
