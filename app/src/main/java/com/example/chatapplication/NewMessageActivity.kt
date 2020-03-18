@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatapplication.models.User
 import com.example.chatapplication.objects.FirebaseManager
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
@@ -50,7 +49,7 @@ class NewMessageActivity : AppCompatActivity() {
 
             val userItem = item as UserItem
             val cid = UUID.randomUUID().toString()
-            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseAuth.getInstance().uid}/${userItem.user.uid}")
+            val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${userItem.user.uid}")
             ref.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
                 }
@@ -63,7 +62,8 @@ class NewMessageActivity : AppCompatActivity() {
                             startActivity(intent)
 
                             finish()
-                            return
+                            return /** If current conversation ID already exists, then takes the user to
+                            that conversation instead of creating a new one. **/
                         }
                     }
                     ref.child("cid").setValue(cid)
@@ -75,7 +75,7 @@ class NewMessageActivity : AppCompatActivity() {
                 }
             })
 
-            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseAuth.getInstance().uid}")
+            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseManager.user!!.uid}")
             toRef.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
                 }

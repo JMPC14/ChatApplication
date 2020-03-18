@@ -5,8 +5,6 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -29,7 +27,6 @@ import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -37,18 +34,14 @@ import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.chat_message_from.view.*
 import kotlinx.android.synthetic.main.chat_message_from_file.view.*
-import kotlinx.android.synthetic.main.chat_message_from_image.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.imageFromImage
 import kotlinx.android.synthetic.main.chat_message_to.view.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
@@ -64,11 +57,13 @@ class ChatLogActivity : AppCompatActivity() {
     val adapter = GroupAdapter<GroupieViewHolder>()
     var toUser: User? = null
 
+    /** Gets the person the user is talking to and ignores any notifications from that user, but no other users. **/
     override fun onResume() {
         super.onResume()
         FirebaseManager.ignoreNotificationUid = toUser!!.uid
     }
 
+    /** Resets user. **/
     override fun onPause() {
         FirebaseManager.ignoreNotificationUid = null
         super.onPause()
@@ -76,7 +71,7 @@ class ChatLogActivity : AppCompatActivity() {
 
     override fun onStop() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${toUser!!.uid}/${FirebaseManager.user!!.uid}")
-        ref.child("typing").setValue(false)
+        ref.child("typing").setValue(false) /** Failsafe to set user as not typing for when a user quits activity while typing. **/
         FirebaseManager.attachedImage = null
         FirebaseManager.attachedFile = null
         FirebaseManager.attachedFileSize = null
@@ -145,7 +140,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         recyclerChatLog.adapter = adapter
         val layoutManager = LinearLayoutManager(this)
-        layoutManager.stackFromEnd = true
+        layoutManager.stackFromEnd = true /** Recycler view will adjust position when keyboard is raised. **/
         recyclerChatLog.layoutManager = layoutManager
 
         supportActionBar?.title = toUser?.username
@@ -171,6 +166,7 @@ class ChatLogActivity : AppCompatActivity() {
             }
         })
 
+        /** Binds enter key to sendMessageButton to save users having to manually press the button. **/
         enterMessageText.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 sendMessageButton.performClick()
@@ -198,7 +194,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         attachFile.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "*/*"
             startActivityForResult(intent, 1)
         }
@@ -247,6 +243,8 @@ class ChatLogActivity : AppCompatActivity() {
         listenForMessages()
     }
 
+    /** Sends notification with user's UID as title and conversation ID & message ID as body,
+     * for the receiver to use to retrieve user and message objects. **/
     private fun buildNotificationPayload(): JsonObject? {
         val payload = JsonObject()
         payload.addProperty("to", FirebaseManager.otherUserToken)
@@ -257,6 +255,7 @@ class ChatLogActivity : AppCompatActivity() {
         return payload
     }
 
+    /** Gets most recent chat message through adapter and uses message ID to set as the latest message seen. **/
     private fun updateLatestMessageSeen() {
         if (adapter.itemCount != 0) {
             val test = adapter.getItem(recyclerChatLog.adapter!!.itemCount - 1)
@@ -280,6 +279,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    /** Updates the most recent message as the most recent seen message whenever the user touches the screen. **/
     override fun onUserInteraction() {
         updateLatestMessageSeen()
         super.onUserInteraction()
@@ -417,7 +417,8 @@ class ChatLogActivity : AppCompatActivity() {
                                 var sequentialFrom = false
                                 var sequentialTo = false
 
-                                if (adapter.itemCount != 0) {
+                                if (adapter.itemCount != 0) { /** Checks most recent chat message to determine which user sent it and doesn't display
+                                 profile picture for that user if they sent the most recent message **/
                                     val test = adapter.getItem(adapter.itemCount - 1)
                                     when (test.layout) {
                                         R.layout.chat_message_from,
@@ -579,6 +580,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    /** Basic text only chat message adapter item. **/
     inner class ChatItem(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
@@ -685,6 +687,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    /** Adapter item for image attached messages. **/
     inner class ChatItemImage(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
@@ -839,6 +842,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    /** Adapter item for generic file attached messages. **/
     inner class ChatItemFile(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
@@ -1007,14 +1011,16 @@ class ChatLogActivity : AppCompatActivity() {
                                 hideComplete = true
                             }
                         }
-                        if (hideComplete) {
+                        if (hideComplete) { /** Refreshes adapter only after unhiding all messages is complete. **/
                             adapter.clear()
                             listenForMessages()
                         }
                     }
                 })
             }
-            android.R.id.home -> {
+            android.R.id.home -> { /** Parent stack not available when the activity is created from a push notification
+             when the app is killed, therefore overrides button to start LatestMessagesActivity only in this instance,
+             otherwise uses parent activity which is better practice. **/
                 if (toUser == intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)) {
                     startActivity(Intent(this, LatestMessagesActivity::class.java))
                 }

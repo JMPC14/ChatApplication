@@ -29,6 +29,8 @@ class LatestMessagesActivity : AppCompatActivity() {
         var LAT_USER_KEY = "LAT_USER_KEY"
     }
 
+    /** Sets foreground activity to true so that push notifications don't show.
+     * Clears adapter to refresh blocklist and adapter if user has just blocked someone. **/
     override fun onResume() {
         super.onResume()
         FirebaseManager.foreground = true
@@ -37,6 +39,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         refreshRecyclerViewMessages()
     }
 
+    /** Sets foreground activity to false so that push notifications show. **/
     override fun onPause() {
         FirebaseManager.foreground = false
         super.onPause()
@@ -115,6 +118,7 @@ class LatestMessagesActivity : AppCompatActivity() {
         })
     }
 
+    /** Latest messages is a map of database key and corresponding ChatMessage objects. **/
     val latestMessageMap = HashMap<String, ChatMessage>()
 
     private fun refreshRecyclerViewMessages() {
