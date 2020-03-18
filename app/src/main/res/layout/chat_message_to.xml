@@ -18,7 +18,7 @@
         android:padding="8dp"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="This is a test message"
+        android:text="This is a very long text message to test the length parameter test test test test test"
         android:textColor="#000000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageMessageTo" />

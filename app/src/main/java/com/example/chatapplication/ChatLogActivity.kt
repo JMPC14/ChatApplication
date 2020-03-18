@@ -421,12 +421,14 @@ class ChatLogActivity : AppCompatActivity() {
                                         R.layout.chat_message_from,
                                         R.layout.chat_message_from_sequential,
                                         R.layout.chat_message_from_image,
+                                        R.layout.chat_message_from_image_sequential,
                                         R.layout.chat_message_from_file -> {
                                             sequentialFrom = true
                                         }
                                         R.layout.chat_message_to,
                                         R.layout.chat_message_to_sequential,
                                         R.layout.chat_message_to_image,
+                                        R.layout.chat_message_to_image_sequential,
                                         R.layout.chat_message_to_file -> {
                                             sequentialTo = true
                                         }
@@ -629,6 +631,7 @@ class ChatLogActivity : AppCompatActivity() {
             } else if (layout == R.layout.chat_message_to || layout == R.layout.chat_message_to_sequential) {
                 viewHolder.itemView.textMessageTo.text = chatMessage.text
                 viewHolder.itemView.timestampMessageTo.text = chatMessage.timestamp
+
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageMessageTo)
 
@@ -684,15 +687,22 @@ class ChatLogActivity : AppCompatActivity() {
     inner class ChatItemImage(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
-            return if (user.uid == FirebaseManager.user!!.uid) {
-                R.layout.chat_message_from_image
+            if (user.uid == FirebaseManager.user!!.uid) {
+                return if (sequential) {
+                    R.layout.chat_message_from_image_sequential
+                } else {
+                    R.layout.chat_message_from_image
+                }
+            }
+            return if (sequential) {
+                R.layout.chat_message_to_image_sequential
             } else {
                 R.layout.chat_message_to_image
             }
         }
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            if (layout == R.layout.chat_message_from_image) {
+            if (layout == R.layout.chat_message_from_image || layout == R.layout.chat_message_from_image_sequential) {
                 if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
                     viewHolder.itemView.messageSeenImage.visibility = View.VISIBLE
                 } else {
@@ -707,8 +717,6 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromImage)
-                } else {
-                    viewHolder.itemView.imageFromImage.visibility = View.INVISIBLE
                 }
 
                 viewHolder.itemView.timestampMessageFromImage.text = chatMessage.timestamp
@@ -753,7 +761,7 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.show()
                     true
                 }
-            } else if (layout == R.layout.chat_message_to_image) {
+            } else if (layout == R.layout.chat_message_to_image || layout == R.layout.chat_message_to_image_sequential) {
                 if (chatMessage.text.isNotEmpty()) {
                     viewHolder.itemView.textMessageToImage.text = chatMessage.text
                 } else {
@@ -762,38 +770,36 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToImage)
-                } else {
-                    viewHolder.itemView.imageToImage.visibility = View.INVISIBLE
+
+                    viewHolder.itemView.imageToImage.setOnClickListener {
+                        val pop = PopupMenu(it.context, it)
+                        pop.inflate(R.menu.chat_log_image_tap_menu)
+                        pop.setOnMenuItemClickListener {
+                            when (it.itemId) {
+                                R.id.view_profile -> {
+                                    val intent = Intent(viewHolder.itemView.context, ProfileActivity::class.java)
+                                    intent.putExtra(OTHER_USER_KEY, user)
+                                    viewHolder.itemView.context.startActivity(intent)
+                                }
+                                R.id.block_user -> {
+                                    if (FirebaseManager.blocklist != null) {
+                                        FirebaseManager.blocklist!!.add(user.uid)
+                                        val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                        ref.setValue(FirebaseManager.blocklist)
+                                        startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                        finish()
+                                    }
+                                }
+                            }
+                            true
+                        }
+                        pop.show()
+                    }
                 }
 
                 viewHolder.itemView.timestampMessageToImage.text = chatMessage.timestamp
                 Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20))
                     .into(viewHolder.itemView.imageMessageToImage)
-
-                viewHolder.itemView.imageToImage.setOnClickListener {
-                    val pop = PopupMenu(it.context, it)
-                    pop.inflate(R.menu.chat_log_image_tap_menu)
-                    pop.setOnMenuItemClickListener {
-                        when (it.itemId) {
-                            R.id.view_profile -> {
-                                val intent = Intent(viewHolder.itemView.context, ProfileActivity::class.java)
-                                intent.putExtra(OTHER_USER_KEY, user)
-                                viewHolder.itemView.context.startActivity(intent)
-                            }
-                            R.id.block_user -> {
-                                if (FirebaseManager.blocklist != null) {
-                                    FirebaseManager.blocklist!!.add(user.uid)
-                                    val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
-                                    ref.setValue(FirebaseManager.blocklist)
-                                    startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
-                                    finish()
-                                }
-                            }
-                        }
-                        true
-                    }
-                    pop.show()
-                }
 
                 viewHolder.itemView.imageMessageToImage.setOnClickListener {
                     val pop = PopupMenu(it.context, it)
@@ -836,8 +842,15 @@ class ChatLogActivity : AppCompatActivity() {
     inner class ChatItemFile(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
-            return if (user.uid == FirebaseManager.user!!.uid) {
-                R.layout.chat_message_from_file
+            if (user.uid == FirebaseManager.user!!.uid) {
+                return if (sequential) {
+                    R.layout.chat_message_from_file_sequential
+                } else {
+                    R.layout.chat_message_from_file
+                }
+            }
+            return if (sequential) {
+                R.layout.chat_message_to_file_sequential
             } else {
                 R.layout.chat_message_to_file
             }
@@ -845,7 +858,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         @SuppressLint("SetTextI18n")
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-            if (layout == R.layout.chat_message_from_file) {
+            if (layout == R.layout.chat_message_from_file || layout == R.layout.chat_message_from_file_sequential) {
                 if (chatMessage.id == FirebaseManager.latestMessageOtherUserSeen) {
                     viewHolder.itemView.messageSeenFile.visibility = View.VISIBLE
                 } else {
@@ -867,8 +880,6 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageFromFile)
-                } else {
-                    viewHolder.itemView.imageFromFile.visibility = View.INVISIBLE
                 }
 
                 viewHolder.itemView.fileTypeFromFile.text = chatMessage.fileType
@@ -902,7 +913,7 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.show()
                     true
                 }
-            } else if (layout == R.layout.chat_message_to_file) {
+            } else if (layout == R.layout.chat_message_to_file || layout == R.layout.chat_message_to_file_sequential) {
                 if (chatMessage.fileSize!! > 1000) {
                     viewHolder.itemView.fileSizeToFile.text = "${chatMessage.fileSize?.div(1000)}mB"
                 } else {
@@ -917,38 +928,36 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToFile)
-                } else {
-                    viewHolder.itemView.imageToFile.visibility = View.INVISIBLE
+
+                    viewHolder.itemView.imageToFile.setOnClickListener {
+                        val pop = PopupMenu(it.context, it)
+                        pop.inflate(R.menu.chat_log_image_tap_menu)
+                        pop.setOnMenuItemClickListener {
+                            when (it.itemId) {
+                                R.id.view_profile -> {
+                                    val intent =
+                                        Intent(viewHolder.itemView.context, ProfileActivity::class.java)
+                                    intent.putExtra(OTHER_USER_KEY, user)
+                                    viewHolder.itemView.context.startActivity(intent)
+                                }
+                                R.id.block_user -> {
+                                    if (FirebaseManager.blocklist != null) {
+                                        FirebaseManager.blocklist!!.add(user.uid)
+                                        val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
+                                        ref.setValue(FirebaseManager.blocklist)
+                                        startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                        finish()
+                                    }
+                                }
+                            }
+                            true
+                        }
+                        pop.show()
+                    }
                 }
 
                 viewHolder.itemView.fileTypeToFile.text = chatMessage.fileType
                 viewHolder.itemView.timestampMessageToFile.text = chatMessage.timestamp
-
-                viewHolder.itemView.imageToFile.setOnClickListener {
-                    val pop = PopupMenu(it.context, it)
-                    pop.inflate(R.menu.chat_log_image_tap_menu)
-                    pop.setOnMenuItemClickListener {
-                        when (it.itemId) {
-                            R.id.view_profile -> {
-                                val intent =
-                                    Intent(viewHolder.itemView.context, ProfileActivity::class.java)
-                                intent.putExtra(OTHER_USER_KEY, user)
-                                viewHolder.itemView.context.startActivity(intent)
-                            }
-                            R.id.block_user -> {
-                                if (FirebaseManager.blocklist != null) {
-                                    FirebaseManager.blocklist!!.add(user.uid)
-                                    val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
-                                    ref.setValue(FirebaseManager.blocklist)
-                                    startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
-                                    finish()
-                                }
-                            }
-                        }
-                        true
-                    }
-                    pop.show()
-                }
 
                 viewHolder.itemView.imageMessageToFile.setOnClickListener {
                     val builder = CustomTabsIntent.Builder()
