@@ -144,7 +144,9 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         recyclerChatLog.adapter = adapter
-        recyclerChatLog.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.stackFromEnd = true
+        recyclerChatLog.layoutManager = layoutManager
 
         supportActionBar?.title = toUser?.username
         supportActionBar?.elevation = 0f
@@ -580,14 +582,13 @@ class ChatLogActivity : AppCompatActivity() {
     inner class ChatItem(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
-            if (user.uid == FirebaseManager.user!!.uid) {
-                return if (sequential) {
+            return if (user.uid == FirebaseManager.user!!.uid) {
+                if (sequential) {
                     R.layout.chat_message_from_sequential
                 } else {
                     R.layout.chat_message_from
                 }
-            }
-            return if (sequential) {
+            } else if (sequential) {
                 R.layout.chat_message_to_sequential
             } else {
                 R.layout.chat_message_to
@@ -687,14 +688,13 @@ class ChatLogActivity : AppCompatActivity() {
     inner class ChatItemImage(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
-            if (user.uid == FirebaseManager.user!!.uid) {
-                return if (sequential) {
+            return if (user.uid == FirebaseManager.user!!.uid) {
+                if (sequential) {
                     R.layout.chat_message_from_image_sequential
                 } else {
                     R.layout.chat_message_from_image
                 }
-            }
-            return if (sequential) {
+            } else if (sequential) {
                 R.layout.chat_message_to_image_sequential
             } else {
                 R.layout.chat_message_to_image
@@ -842,14 +842,13 @@ class ChatLogActivity : AppCompatActivity() {
     inner class ChatItemFile(val id: String, val chatMessage: ChatMessage, val user: User, private val sequential: Boolean) : Item<GroupieViewHolder>() {
 
         override fun getLayout(): Int {
-            if (user.uid == FirebaseManager.user!!.uid) {
-                return if (sequential) {
+            return if (user.uid == FirebaseManager.user!!.uid) {
+                if (sequential) {
                     R.layout.chat_message_from_file_sequential
                 } else {
                     R.layout.chat_message_from_file
                 }
-            }
-            return if (sequential) {
+            } else if (sequential) {
                 R.layout.chat_message_to_file_sequential
             } else {
                 R.layout.chat_message_to_file
@@ -866,8 +865,7 @@ class ChatLogActivity : AppCompatActivity() {
                 }
 
                 if (chatMessage.fileSize!! > 1000) {
-                    viewHolder.itemView.fileSizeFromFile.text =
-                        "${chatMessage.fileSize?.div(1000)}mB"
+                    viewHolder.itemView.fileSizeFromFile.text = "${chatMessage.fileSize?.div(1000)}mB"
                 } else {
                     viewHolder.itemView.fileSizeFromFile.text = "${chatMessage.fileSize}kB"
                 }
