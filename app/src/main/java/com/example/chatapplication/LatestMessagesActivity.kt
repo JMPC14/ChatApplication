@@ -9,6 +9,9 @@ import android.view.MenuItem
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatapplication.models.ChatMessage
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId

@@ -1,4 +1,4 @@
-package com.example.chatapplication
+package com.example.chatapplication.api
 
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient

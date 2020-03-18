@@ -1,6 +1,5 @@
-package com.example.chatapplication
+package com.example.chatapplication.api
 
-import com.example.chatapplication.MyFirebaseMessagingService
 import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.http.Body

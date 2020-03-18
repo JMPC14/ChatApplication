@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
