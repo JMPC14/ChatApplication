@@ -1,4 +1,4 @@
-package com.example.chatapplication.api
+package com.example.chatapplication
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -16,10 +16,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
-import com.example.chatapplication.*
-import com.example.chatapplication.models.ChatMessage
-import com.example.chatapplication.models.User
-import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

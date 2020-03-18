@@ -4,15 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chatapplication.models.ChatMessage
-import com.example.chatapplication.models.User
-import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
@@ -258,7 +254,6 @@ class LatestMessagesActivity : AppCompatActivity() {
                     FirebaseManager.user = p0.getValue(User::class.java)
                     Picasso.get().load(FirebaseManager.user?.profileImageUrl).into(userImageLatestMessages)
                     usernameLatestMessages.text = FirebaseManager.user?.username
-                    Log.d("LatestMessages", "Current user is ${FirebaseManager.user?.username}")
                     FirebaseDatabase.getInstance().getReference("/online-users/${FirebaseManager.user?.uid}").setValue(true)
                 }
             })
