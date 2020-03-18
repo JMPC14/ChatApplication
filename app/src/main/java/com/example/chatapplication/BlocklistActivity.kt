@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -42,14 +44,16 @@ class BlocklistActivity : AppCompatActivity() {
 
                     override fun onDataChange(p0: DataSnapshot) {
                         adapter.add(BlocklistItem(p0.getValue(User::class.java)!!))
+                        if (adapter.itemCount == 0) {
+                            emptyBlockListText.visibility = View.VISIBLE
+                        }
                     }
                 })
         }
-        recyclerBlocklist.adapter = adapter
-
-        if (adapter.itemCount == 0) {
+        if (FirebaseManager.blocklist!!.isEmpty()) {
             emptyBlockListText.visibility = View.VISIBLE
         }
+        recyclerBlocklist.adapter = adapter
     }
 
     inner class BlocklistItem(private val blockedUser: User) : Item<GroupieViewHolder>() {

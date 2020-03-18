@@ -1,4 +1,4 @@
-package com.example.chatapplication
+package com.example.chatapplication.api
 
 import com.google.gson.JsonObject
 import retrofit2.Call

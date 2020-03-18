@@ -1,4 +1,4 @@
-package com.example.chatapplication
+package com.example.chatapplication.api
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,13 +10,16 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.media.RingtoneManager
 import android.media.ThumbnailUtils
-import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
+import com.example.chatapplication.*
+import com.example.chatapplication.models.ChatMessage
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -44,7 +47,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val uid = FirebaseAuth.getInstance().uid
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
-            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(FirebaseManager.token)
+            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(
+                FirebaseManager.token
+            )
         }
     }
 
@@ -108,7 +113,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             .addNextIntent(intent)
                             .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
 
-                        val notificationBuilder = NotificationCompat.Builder(this@MyFirebaseMessagingService, channelId)
+                        val notificationBuilder = NotificationCompat.Builder(this@MyFirebaseMessagingService,
+                                channelId
+                            )
                             .setSmallIcon(R.drawable.image_bird)
                             .setLargeIcon(myBitmap)
                             .setContentTitle(user!!.username)

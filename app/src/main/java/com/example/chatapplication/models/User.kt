@@ -1,4 +1,4 @@
-package com.example.chatapplication
+package com.example.chatapplication.models
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

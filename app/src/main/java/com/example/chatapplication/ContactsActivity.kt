@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
@@ -48,14 +50,16 @@ class ContactsActivity : AppCompatActivity() {
                         list!!.add(p0.getValue(User::class.java)!!)
                         list.sortBy { it.username}
                         list.forEach { adapter.add(ContactItem(it)) }
+                        if (adapter.itemCount == 0) {
+                            emptyContacts.visibility = View.VISIBLE
+                        }
                     }
                 })
         }
-        recyclerContacts.adapter = adapter
-
-        if (adapter.itemCount == 0) {
+        if (FirebaseManager.contacts!!.isEmpty()) {
             emptyContacts.visibility = View.VISIBLE
         }
+        recyclerContacts.adapter = adapter
     }
 
     inner class ContactItem(private val contact: User) : Item<GroupieViewHolder>() {

@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -107,7 +109,12 @@ class RegisterActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().uid ?: ""
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
         val contactRef = FirebaseDatabase.getInstance().getReference("/users/$uid/contacts")
-        val user = User(uid, textUsernameRegister.text.toString(), profileImageUrl, textEmailRegister.text.toString())
+        val user = User(
+            uid,
+            textUsernameRegister.text.toString(),
+            profileImageUrl,
+            textEmailRegister.text.toString()
+        )
 
         FirebaseManager.user = user
         ref.setValue(user)

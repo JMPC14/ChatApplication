@@ -1,4 +1,6 @@
-package com.example.chatapplication
+package com.example.chatapplication.objects
+
+import com.example.chatapplication.models.User
 
 object FirebaseManager {
     var user: User? = null

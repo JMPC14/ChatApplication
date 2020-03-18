@@ -1,25 +1,18 @@
 package com.example.chatapplication
 
 import android.annotation.SuppressLint
-import android.app.*
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.media.ThumbnailUtils
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.RemoteInput
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chatapplication.models.ChatMessage
+import com.example.chatapplication.models.User
+import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
@@ -30,7 +23,6 @@ import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
-import java.lang.Exception
 
 class LatestMessagesActivity : AppCompatActivity() {
 
@@ -254,7 +246,8 @@ class LatestMessagesActivity : AppCompatActivity() {
         } else {
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
             FirebaseManager.token = it.result?.token
-            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(FirebaseManager.token)
+            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(
+                FirebaseManager.token)
         }
             val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
