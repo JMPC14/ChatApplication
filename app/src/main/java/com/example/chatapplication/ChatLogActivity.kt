@@ -5,14 +5,13 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +29,7 @@ import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -37,13 +37,18 @@ import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.chat_message_from.view.*
 import kotlinx.android.synthetic.main.chat_message_from_file.view.*
+import kotlinx.android.synthetic.main.chat_message_from_image.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.*
+import kotlinx.android.synthetic.main.chat_message_from_image.view.imageFromImage
 import kotlinx.android.synthetic.main.chat_message_to.view.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
@@ -166,7 +171,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         enterMessageText.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                performSendMessage()
+                sendMessageButton.performClick()
                 return@OnKeyListener true
             }
             false
@@ -450,9 +455,9 @@ class ChatLogActivity : AppCompatActivity() {
                                 else if (chatMessage.imageUrl != null) {
                                     adapter.add(ChatItemImage(p0.key!!, chatMessage, user!!, sequential))
                                 }
-                                recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
                                 recyclerChatLog.adapter = adapter
                             }
+                            recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
                         }
 
                         override fun onChildRemoved(p0: DataSnapshot) {
@@ -707,7 +712,8 @@ class ChatLogActivity : AppCompatActivity() {
                 }
 
                 viewHolder.itemView.timestampMessageFromImage.text = chatMessage.timestamp
-                Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20)).into(viewHolder.itemView.imageMessageFromImage)
+                Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20))
+                    .into(viewHolder.itemView.imageMessageFromImage)
 
                 viewHolder.itemView.imageMessageFromImage.setOnClickListener {
                     val pop = PopupMenu(it.context, it)
@@ -747,7 +753,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.show()
                     true
                 }
-                recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
             } else if (layout == R.layout.chat_message_to_image) {
                 if (chatMessage.text.isNotEmpty()) {
                     viewHolder.itemView.textMessageToImage.text = chatMessage.text
@@ -762,7 +767,8 @@ class ChatLogActivity : AppCompatActivity() {
                 }
 
                 viewHolder.itemView.timestampMessageToImage.text = chatMessage.timestamp
-                Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20)).into(viewHolder.itemView.imageMessageToImage)
+                Picasso.get().load(chatMessage.imageUrl).transform(RoundedCornersTransformation(20, 20))
+                    .into(viewHolder.itemView.imageMessageToImage)
 
                 viewHolder.itemView.imageToImage.setOnClickListener {
                     val pop = PopupMenu(it.context, it)
@@ -823,7 +829,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.show()
                     true
                 }
-                recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
             }
         }
     }
