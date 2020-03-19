@@ -2,6 +2,7 @@ package com.example.chatapplication
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -78,6 +79,7 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
         super.onPause()
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation_drawer)
@@ -107,6 +109,8 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
 
         fetchCurrentUser()
         fetchContacts()
+
+        window.statusBarColor = (Color.parseColor("#4CAF50"))
 
         GlobalScope.launch {
             navView.menu.getItem(1).isChecked = true

@@ -17,9 +17,4 @@ class ChatLogViewModel : ViewModel() {
         outState.putString(photoAttachmentUriName, photoAttachmentUri.toString())
         outState.putString(fileAttachmentUriName, fileAttachmentUri.toString())
     }
-
-    fun restoreState(savedInstanceState: Bundle) {
-        photoAttachmentUri = savedInstanceState.getString(photoAttachmentUriName)!!.toUri()
-        fileAttachmentUri = savedInstanceState.getString(fileAttachmentUriName)!!.toUri()
-    }
 }

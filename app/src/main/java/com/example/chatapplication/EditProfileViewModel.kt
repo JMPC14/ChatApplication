@@ -18,10 +18,4 @@ class EditProfileViewModel : ViewModel() {
         outState.putString(emailTextName, emailText)
         outState.putString(profileImageUrlName, profileImageUrl)
     }
-
-    fun restoreState(savedInstanceState: Bundle) {
-        usernameText = savedInstanceState.getString(usernameTextName)!!
-        emailText = savedInstanceState.getString(emailTextName)!!
-        profileImageUrl = savedInstanceState.getString(profileImageUrlName)!!
-    }
 }
