@@ -22,5 +22,5 @@ object FirebaseManager {
     var messageKey: String? = null /** Conversation ID & message ID to be sent in push notification. **/
     var foreground: Boolean? = null /** If true then a particular activity is in the foreground. **/
     var profileChanged: Boolean? = null /** If profile has been changed then Navigation Drawer is refreshed. **/
-    var onlineUsers: MutableList<String>? = null
+    var onlineUsers: MutableList<String>? = null /** List of online users for use in ChatLogActivity. **/
 }
