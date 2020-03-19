@@ -34,6 +34,7 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.activity_navigation_drawer.*
 import kotlinx.android.synthetic.main.app_bar_navigation_drawer.*
 import kotlinx.android.synthetic.main.blocked_user_row.view.*
@@ -119,16 +120,28 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
     }
 
     private fun listenForOnlineIndicators() {
+        FirebaseManager.onlineUsers = mutableListOf()
         val ref = FirebaseDatabase.getInstance().getReference("/online-users")
         ref.addChildEventListener(object: ChildEventListener {
             override fun onCancelled(p0: DatabaseError) {
             }
 
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                recyclerNavigation.adapter!!.notifyDataSetChanged()
+                if (p0.value == true) {
+                    FirebaseManager.onlineUsers!!.add(p0.key!!)
+                } else if (p0.value == false && FirebaseManager.onlineUsers!!.contains(p0.key!!)) {
+                    FirebaseManager.onlineUsers!!.remove(p0.key!!)
+                }
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 recyclerNavigation.adapter!!.notifyDataSetChanged()
+                if (p0.value == true) {
+                    FirebaseManager.onlineUsers!!.add(p0.key!!)
+                } else if (p0.value == false && FirebaseManager.onlineUsers!!.contains(p0.key!!)) {
+                    FirebaseManager.onlineUsers!!.remove(p0.key!!)
+                }
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {

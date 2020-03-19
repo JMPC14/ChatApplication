@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -37,9 +38,16 @@ import kotlinx.android.synthetic.main.chat_message_from.view.*
 import kotlinx.android.synthetic.main.chat_message_from_file.view.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.imageFromImage
+import kotlinx.android.synthetic.main.chat_message_to.*
 import kotlinx.android.synthetic.main.chat_message_to.view.*
+import kotlinx.android.synthetic.main.chat_message_to.view.imageMessageTo
+import kotlinx.android.synthetic.main.chat_message_to_file.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
+import kotlinx.android.synthetic.main.chat_message_to_file.view.imageToFile
+import kotlinx.android.synthetic.main.chat_message_to_image.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
+import kotlinx.android.synthetic.main.chat_message_to_image.view.imageToImage
+import kotlinx.android.synthetic.main.content_navigation_drawer.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -242,6 +250,34 @@ class ChatLogActivity : AppCompatActivity() {
         })
 
         listenForMessages()
+
+        listenForOnlineIndicators()
+    }
+
+    private fun listenForOnlineIndicators() {
+        val ref = FirebaseDatabase.getInstance().getReference("/online-users")
+        ref.addChildEventListener(object: ChildEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                if (p0.key!! == toUser!!.uid) {
+                    recyclerChatLog.adapter!!.notifyDataSetChanged()
+                }
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                if (p0.key!! == toUser!!.uid) {
+                    recyclerChatLog.adapter!!.notifyDataSetChanged()
+                }
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+            }
+        })
     }
 
     /** Sends notification with user's UID as title and conversation ID & message ID as body,
@@ -643,6 +679,12 @@ class ChatLogActivity : AppCompatActivity() {
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageMessageTo)
 
+                    if (FirebaseManager.onlineUsers!!.contains(toUser!!.uid)) {
+                        viewHolder.itemView.imageMessageTo.borderColor = (Color.parseColor("#4CAF50"))
+                    } else {
+                        viewHolder.itemView.imageMessageTo.borderColor = (Color.parseColor("#FFFFFF"))
+                    }
+
                     viewHolder.itemView.imageMessageTo.setOnClickListener {
                         val pop = PopupMenu(it.context, it)
                         pop.inflate(R.menu.chat_log_image_tap_menu)
@@ -778,6 +820,12 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToImage)
+
+                    if (FirebaseManager.onlineUsers!!.contains(toUser!!.uid)) {
+                        viewHolder.itemView.imageToImage.borderColor = (Color.parseColor("#4CAF50"))
+                    } else {
+                        viewHolder.itemView.imageToImage.borderColor = (Color.parseColor("#FFFFFF"))
+                    }
 
                     viewHolder.itemView.imageToImage.setOnClickListener {
                         val pop = PopupMenu(it.context, it)
@@ -935,6 +983,12 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (!sequential) {
                     Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageToFile)
+
+                    if (FirebaseManager.onlineUsers!!.contains(toUser!!.uid)) {
+                        viewHolder.itemView.imageToFile.borderColor = (Color.parseColor("#4CAF50"))
+                    } else {
+                        viewHolder.itemView.imageToFile.borderColor = (Color.parseColor("#FFFFFF"))
+                    }
 
                     viewHolder.itemView.imageToFile.setOnClickListener {
                         val pop = PopupMenu(it.context, it)
