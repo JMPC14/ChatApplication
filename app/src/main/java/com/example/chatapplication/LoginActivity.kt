@@ -39,10 +39,9 @@ class LoginActivity :AppCompatActivity() {
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        val intent = Intent(this, LatestMessagesActivity::class.java)
+                        val intent = Intent(this, NavigationDrawerActivity::class.java)
                         intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK).or(Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
-                        FirebaseManager.user
                     }
                 }
                 .addOnFailureListener {

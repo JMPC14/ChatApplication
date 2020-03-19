@@ -23,6 +23,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_edit_profile.*
+import kotlinx.android.synthetic.main.nav_header_navigation_drawer.*
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
@@ -126,7 +127,8 @@ class EditProfileActivity : AppCompatActivity() {
                 FirebaseManager.user?.profileImageUrl = it.toString()
                 viewModel.profileImageUrl = it.toString()
                 databaseRef.setValue(it.toString())
-                userImageProfileEdit.setImageBitmap((bitmap))
+                userImageProfileEdit.setImageBitmap(bitmap)
+                FirebaseManager.profileChanged = true
             }
         }
     }
@@ -164,6 +166,7 @@ class EditProfileActivity : AppCompatActivity() {
                     changeUsername(uid, newUsername)
                     changeEmail(uid, newEmail)
                 }
+                FirebaseManager.profileChanged = true
                 startActivity(Intent(this, ProfileActivity::class.java))
             }
         }

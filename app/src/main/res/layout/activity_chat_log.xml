@@ -67,7 +67,8 @@
         android:enabled="false"
         app:layout_constraintBottom_toBottomOf="@+id/enterMessageText"
         app:layout_constraintEnd_toEndOf="@id/enterMessageText"
-        app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
+        app:layout_constraintTop_toTopOf="@+id/enterMessageText"
+        />
 
     <TextView
         android:id="@+id/userTypingIndicator"

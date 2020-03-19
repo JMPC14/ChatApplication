@@ -64,34 +64,34 @@ class NewMessageActivity : AppCompatActivity() {
                             finish()
                             return /** If current conversation ID already exists, then takes the user to
                             that conversation instead of creating a new one. **/
+                        } else {
+                            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseManager.user!!.uid}")
+                            toRef.addListenerForSingleValueEvent(object: ValueEventListener {
+                                override fun onCancelled(p0: DatabaseError) {
+                                }
+
+                                override fun onDataChange(p0: DataSnapshot) {
+                                    p0.children.forEach {
+                                        if (it.key == "cid") {
+                                            val intent = Intent(view.context, ChatLogActivity::class.java)
+                                            intent.putExtra(USER_KEY, userItem.user)
+                                            startActivity(intent)
+
+                                            finish()
+                                            return
+                                        }
+                                    }
+                                    toRef.child("cid").setValue(cid)
+                                    val intent = Intent(view.context, ChatLogActivity::class.java)
+                                    intent.putExtra(USER_KEY, userItem.user)
+                                    startActivity(intent)
+
+                                    finish()
+                                }
+                            })
                         }
                     }
                     ref.child("cid").setValue(cid)
-                    val intent = Intent(view.context, ChatLogActivity::class.java)
-                    intent.putExtra(USER_KEY, userItem.user)
-                    startActivity(intent)
-
-                    finish()
-                }
-            })
-
-            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseManager.user!!.uid}")
-            toRef.addListenerForSingleValueEvent(object: ValueEventListener {
-                override fun onCancelled(p0: DatabaseError) {
-                }
-
-                override fun onDataChange(p0: DataSnapshot) {
-                    p0.children.forEach {
-                        if (it.key == "cid") {
-                            val intent = Intent(view.context, ChatLogActivity::class.java)
-                            intent.putExtra(USER_KEY, userItem.user)
-                            startActivity(intent)
-
-                            finish()
-                            return
-                        }
-                    }
-                    toRef.child("cid").setValue(cid)
                     val intent = Intent(view.context, ChatLogActivity::class.java)
                     intent.putExtra(USER_KEY, userItem.user)
                     startActivity(intent)

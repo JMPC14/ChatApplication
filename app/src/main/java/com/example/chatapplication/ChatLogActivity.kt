@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -107,7 +108,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY) ?:
-            intent.getParcelableExtra(LatestMessagesActivity.LAT_USER_KEY) ?:
+            intent.getParcelableExtra(NavigationDrawerActivity.LAT_USER_KEY) ?:
             intent.getParcelableExtra(NewMessageActivity.USER_KEY)
         FirebaseManager.otherUser = toUser
 
@@ -491,13 +492,17 @@ class ChatLogActivity : AppCompatActivity() {
         val date = LocalDateTime.now().dayOfMonth
         val hour = LocalDateTime.now().hour
         val minute = LocalDateTime.now().minute
-        val newMinute: String?
-        newMinute = if (minute < 10) {
+        val newHour = if (hour < 10) {
+            "0$hour"
+        } else {
+            hour.toString()
+        }
+        val newMinute = if (minute < 10) {
             "0$minute"
         } else {
             minute.toString()
         }
-        val timestamp = "$date $month, $hour:$newMinute"
+        val timestamp = "$date $month, $newHour:$newMinute"
 
         if (text != null) {
 
@@ -560,7 +565,7 @@ class ChatLogActivity : AppCompatActivity() {
                         response: Response<JsonObject?>
                     ) {
                         if (response.isSuccessful) {
-                            Toast.makeText(this@ChatLogActivity, "Notification send successful", Toast.LENGTH_LONG).show()
+                            Log.d("TAG", "Notification sent.")
                         }
                     }
 
@@ -654,7 +659,7 @@ class ChatLogActivity : AppCompatActivity() {
                                         FirebaseManager.blocklist!!.add(user.uid)
                                         val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
                                         ref.setValue(FirebaseManager.blocklist)
-                                        startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                        startActivity(Intent(viewHolder.itemView.context, NavigationDrawerActivity::class.java))
                                         finish()
                                     }
                                 }
@@ -789,7 +794,7 @@ class ChatLogActivity : AppCompatActivity() {
                                         FirebaseManager.blocklist!!.add(user.uid)
                                         val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
                                         ref.setValue(FirebaseManager.blocklist)
-                                        startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                        startActivity(Intent(viewHolder.itemView.context, NavigationDrawerActivity::class.java))
                                         finish()
                                     }
                                 }
@@ -947,7 +952,7 @@ class ChatLogActivity : AppCompatActivity() {
                                         FirebaseManager.blocklist!!.add(user.uid)
                                         val ref = FirebaseDatabase.getInstance().getReference("/users/${FirebaseManager.user!!.uid}/blocklist")
                                         ref.setValue(FirebaseManager.blocklist)
-                                        startActivity(Intent(viewHolder.itemView.context, LatestMessagesActivity::class.java))
+                                        startActivity(Intent(viewHolder.itemView.context, NavigationDrawerActivity::class.java))
                                         finish()
                                     }
                                 }
@@ -1022,7 +1027,7 @@ class ChatLogActivity : AppCompatActivity() {
              when the app is killed, therefore overrides button to start LatestMessagesActivity only in this instance,
              otherwise uses parent activity which is better practice. **/
                 if (toUser == intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY)) {
-                    startActivity(Intent(this, LatestMessagesActivity::class.java))
+                    startActivity(Intent(this, NavigationDrawerActivity::class.java))
                 }
             }
         }

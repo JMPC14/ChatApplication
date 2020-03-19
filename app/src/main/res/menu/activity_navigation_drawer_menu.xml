@@ -5,16 +5,20 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_account_circle_green_24dp"
+            android:title="Profile" />
+        <item
             android:id="@+id/nav_latest_messages"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_message_green_24dp"
             android:title="Latest Messages" />
         <item
             android:id="@+id/nav_contacts"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_contacts_green_24dp"
             android:title="Contacts" />
         <item
-            android:id="@+id/nav_profile"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Profile" />
+            android:id="@+id/nav_blocklist"
+            android:icon="@drawable/ic_block_green_24dp"
+            android:title="Blocked Users" />
     </group>
 </menu>

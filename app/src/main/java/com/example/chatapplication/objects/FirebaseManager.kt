@@ -21,4 +21,5 @@ object FirebaseManager {
     var otherUserToken: String? = null /** Device token of the other user to send push notifications. **/
     var messageKey: String? = null /** Conversation ID & message ID to be sent in push notification. **/
     var foreground: Boolean? = null /** If true then a particular activity is in the foreground. **/
+    var profileChanged: Boolean? = null /** If profile has been changed then Navigation Drawer is refreshed. **/
 }

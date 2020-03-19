@@ -65,7 +65,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun handleNow(data: Map<String, String>) {
         if (data.containsKey("title") && data.containsKey("message")) {
-            sendNotification(data["title"] ?: error("First Error"), data["message"] ?: error("Second Error"))
+            sendNotification(data["title"] ?: error("Title null"), data["message"] ?: error("Message null"))
         }
     }
 
