@@ -53,7 +53,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(p0: RemoteMessage) {
         Log.d("TAG", "Data: ${p0.data.values}")
-        Log.d("TAG", "Notification: ${p0.notification}")
 
         val mapData: Map<String, String> = p0.data
 
@@ -67,7 +66,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(uid: String, message: String) {
-        if ((FirebaseManager.foreground == true) || FirebaseManager.ignoreNotificationUid != null && FirebaseManager.ignoreNotificationUid == uid) { return }
+        if ((FirebaseManager.foreground == true) || FirebaseManager.otherUser != null && FirebaseManager.otherUser!!.uid == uid) { return }
 
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         var myBitmap: Bitmap? = null
@@ -93,6 +92,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                                     return
                                 }
                             }
+
                             FirebaseDatabase.getInstance().getReference("/users/$uid")
                                 .addListenerForSingleValueEvent(object: ValueEventListener {
                                     override fun onCancelled(p0: DatabaseError) {

@@ -13,7 +13,6 @@ object FirebaseManager {
     var attachedFileSize: Double? = null /** File size of attached file to be displayed in message. **/
     var attachedFileType: String? = null /** File type of attached file to be displayed in message. **/
     var notificationTempMessage: String? = null /** Temporary message text used for when a user replies within a push notification. **/
-    var ignoreNotificationUid: String? = null /** UID of user currently in conversation for push notifications to ignore. **/
     var latestMessageSeen: String? = null /** Latest message from the other user that the current user has seen. **/
     var latestMessageOtherUserSeen: String? = null /** Latest message from the current user that the other user has seen. **/
     var conversationId: String? = null /** Conversation ID under which messages are stored. **/

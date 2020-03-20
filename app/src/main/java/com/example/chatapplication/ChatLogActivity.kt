@@ -69,12 +69,11 @@ class ChatLogActivity : AppCompatActivity() {
     /** Gets the person the user is talking to and ignores any notifications from that user, but no other users. **/
     override fun onResume() {
         super.onResume()
-        FirebaseManager.ignoreNotificationUid = toUser!!.uid
     }
 
     /** Resets user. **/
     override fun onPause() {
-        FirebaseManager.ignoreNotificationUid = null
+        FirebaseManager.otherUser = null
         super.onPause()
     }
 
@@ -85,7 +84,6 @@ class ChatLogActivity : AppCompatActivity() {
         FirebaseManager.attachedFile = null
         FirebaseManager.attachedFileSize = null
         FirebaseManager.attachedFileType = null
-        FirebaseManager.otherUser = null
         FirebaseManager.latestMessageSeen = null
         FirebaseManager.latestMessageOtherUserSeen = null
         super.onStop()
