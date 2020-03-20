@@ -340,6 +340,10 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
 
+                if (FirebaseManager.blocklist != null ) {
+                    if (FirebaseManager.blocklist!!.contains(chatMessage.fromId) || FirebaseManager.blocklist!!.contains(chatMessage.toId)) { return }
+                }
+
                 latestMessageMap[p0.key!!] = chatMessage
                 refreshRecyclerViewMessages()
             }

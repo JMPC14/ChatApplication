@@ -35,6 +35,9 @@ class NewMessageActivity : AppCompatActivity() {
     private fun fetchContactsForMessage() {
         val adapter = GroupAdapter<GroupieViewHolder>()
         FirebaseManager.contacts?.forEach {
+            if (FirebaseManager.blocklist!!.contains(it)) {
+                return@forEach
+            }
             FirebaseDatabase.getInstance().getReference("/users/$it").addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
                 }

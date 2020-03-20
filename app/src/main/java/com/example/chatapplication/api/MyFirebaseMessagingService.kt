@@ -22,10 +22,7 @@ import com.example.chatapplication.R
 import com.example.chatapplication.models.User
 import com.example.chatapplication.objects.FirebaseManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -70,88 +67,97 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(uid: String, message: String) {
-        if ((FirebaseManager.foreground == true) || FirebaseManager.ignoreNotificationUid != null && FirebaseManager.ignoreNotificationUid == uid) {
-            return
-        }
+        if ((FirebaseManager.foreground == true) || FirebaseManager.ignoreNotificationUid != null && FirebaseManager.ignoreNotificationUid == uid) { return }
 
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         var myBitmap: Bitmap? = null
         var user: User?
         var chatMessage: ChatMessage?
 
-        FirebaseDatabase.getInstance().getReference("/conversations/$message").addListenerForSingleValueEvent(object: ValueEventListener {
+        FirebaseDatabase.getInstance().getReference("/conversations/$message")
+            .addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
             }
 
             override fun onDataChange(p0: DataSnapshot) {
                 chatMessage = p0.getValue(ChatMessage::class.java)
 
-                FirebaseDatabase.getInstance().getReference("/users/$uid").addListenerForSingleValueEvent(object: ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {
-                    }
-
-                    override fun onDataChange(p0: DataSnapshot) {
-                        user = p0.getValue(User::class.java)
-
-                        Picasso.get().load(user!!.profileImageUrl).into(object: com.squareup.picasso.Target {
-                            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                            }
-
-                            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                                val newBitmap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200)
-                                myBitmap = RoundedBitmapDrawableFactory.create(resources, newBitmap).apply { isCircular = true }.toBitmap()
-                            }
-
-                            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                            }
-                        })
-
-
-                        val intent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
-                        intent.putExtra(NOT_USER_KEY, user)
-
-                        val pendingIntent = TaskStackBuilder.create(this@MyFirebaseMessagingService)
-                            .addNextIntent(intent)
-                            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-
-                        val notificationBuilder = NotificationCompat.Builder(this@MyFirebaseMessagingService,
-                                channelId
-                            )
-                            .setSmallIcon(R.drawable.image_bird)
-                            .setLargeIcon(myBitmap)
-                            .setContentTitle(user!!.username)
-                            .setAutoCancel(true)
-                            .setSound(defaultSoundUri)
-                            .setContentIntent(pendingIntent)
-
-                        if (chatMessage!!.text.isEmpty() && chatMessage!!.imageUrl != null) {
-                            notificationBuilder.setContentText("${user!!.username} sent an image")
-                        } else if (chatMessage!!.text.isEmpty() && chatMessage!!.fileUrl != null) {
-                            notificationBuilder.setContentText("${user!!.username} sent a file")
-                        } else if (chatMessage!!.text.isNotEmpty()) {
-                            notificationBuilder.setContentText(chatMessage!!.text)
+                FirebaseDatabase.getInstance().getReference("/users/${FirebaseAuth.getInstance().uid}/blocklist")
+                    .addListenerForSingleValueEvent(object: ValueEventListener {
+                        override fun onCancelled(p0: DatabaseError) {
                         }
 
-                        val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+                        override fun onDataChange(p0: DataSnapshot) {
+                            p0.children.forEach {
+                                if (it.value == uid) {
+                                    return
+                                }
+                            }
+                            FirebaseDatabase.getInstance().getReference("/users/$uid")
+                                .addListenerForSingleValueEvent(object: ValueEventListener {
+                                    override fun onCancelled(p0: DatabaseError) {
+                                    }
 
-                        val parsedString: String = message.substringBefore("/")
+                                    override fun onDataChange(p0: DataSnapshot) {
+                                        user = p0.getValue(User::class.java)
 
-                        val replyIntent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
-                            .putExtra(NOT_USER_KEY, user)
-                            .putExtra(CID, parsedString)
-                        val replyPendingIntent = PendingIntent.getActivity(this@MyFirebaseMessagingService, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                                        Picasso.get().load(user!!.profileImageUrl).into(object: com.squareup.picasso.Target {
+                                            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                                            }
 
-                        val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
+                                            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                                                val newBitmap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200)
+                                                myBitmap = RoundedBitmapDrawableFactory.create(resources, newBitmap).apply { isCircular = true }.toBitmap()
+                                            }
 
-                        notificationBuilder.addAction(action)
+                                            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                                            }
+                                        })
 
-                        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                        val channel = NotificationChannel(channelId, "Cloud Messaging Service", NotificationManager.IMPORTANCE_DEFAULT)
-                        notificationManager.createNotificationChannel(channel)
-                        NotificationManagerCompat.from(this@MyFirebaseMessagingService)
-                            .notify(NOTIFICATION_ID, notificationBuilder.build())
-                    }
-                })
+                                        val intent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
+                                        intent.putExtra(NOT_USER_KEY, user)
+
+                                        val pendingIntent = TaskStackBuilder.create(this@MyFirebaseMessagingService)
+                                            .addNextIntent(intent)
+                                            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
+                                        val notificationBuilder = NotificationCompat.Builder(this@MyFirebaseMessagingService, channelId)
+                                            .setSmallIcon(R.drawable.image_bird)
+                                            .setLargeIcon(myBitmap)
+                                            .setContentTitle(user!!.username)
+                                            .setAutoCancel(true)
+                                            .setSound(defaultSoundUri)
+                                            .setContentIntent(pendingIntent)
+
+                                        if (chatMessage!!.text.isEmpty() && chatMessage!!.imageUrl != null) {
+                                            notificationBuilder.setContentText("${user!!.username} sent an image")
+                                        } else if (chatMessage!!.text.isEmpty() && chatMessage!!.fileUrl != null) {
+                                            notificationBuilder.setContentText("${user!!.username} sent a file")
+                                        } else if (chatMessage!!.text.isNotEmpty()) {
+                                            notificationBuilder.setContentText(chatMessage!!.text)
+                                        }
+
+                                        val remoteInput = RemoteInput.Builder(NOTIFICATION_REPLY_KEY).setLabel("Reply").build()
+
+                                        val parsedString: String = message.substringBefore("/")
+
+                                        val replyIntent = Intent(this@MyFirebaseMessagingService, ChatLogActivity::class.java)
+                                            .putExtra(NOT_USER_KEY, user)
+                                            .putExtra(CID, parsedString)
+                                        val replyPendingIntent = PendingIntent.getActivity(this@MyFirebaseMessagingService, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+                                        val action = NotificationCompat.Action.Builder(R.drawable.image_bird, "Reply", replyPendingIntent).addRemoteInput(remoteInput).build()
+
+                                        notificationBuilder.addAction(action)
+
+                                        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                                        val channel = NotificationChannel(channelId, "Cloud Messaging Service", NotificationManager.IMPORTANCE_DEFAULT)
+                                        notificationManager.createNotificationChannel(channel)
+                                        NotificationManagerCompat.from(this@MyFirebaseMessagingService).notify(NOTIFICATION_ID, notificationBuilder.build())
+                                    }
+                                })
+                        }
+                    })
             }
         })
     }
