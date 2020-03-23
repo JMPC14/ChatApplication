@@ -13,7 +13,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.RemoteInput
@@ -24,6 +23,7 @@ import com.example.chatapplication.api.MyFirebaseMessagingService
 import com.example.chatapplication.models.ChatMessage
 import com.example.chatapplication.models.User
 import com.example.chatapplication.objects.FirebaseManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -38,16 +38,12 @@ import kotlinx.android.synthetic.main.chat_message_from.view.*
 import kotlinx.android.synthetic.main.chat_message_from_file.view.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.*
 import kotlinx.android.synthetic.main.chat_message_from_image.view.imageFromImage
-import kotlinx.android.synthetic.main.chat_message_to.*
 import kotlinx.android.synthetic.main.chat_message_to.view.*
 import kotlinx.android.synthetic.main.chat_message_to.view.imageMessageTo
-import kotlinx.android.synthetic.main.chat_message_to_file.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.*
 import kotlinx.android.synthetic.main.chat_message_to_file.view.imageToFile
-import kotlinx.android.synthetic.main.chat_message_to_image.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.*
 import kotlinx.android.synthetic.main.chat_message_to_image.view.imageToImage
-import kotlinx.android.synthetic.main.content_navigation_drawer.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -65,11 +61,6 @@ class ChatLogActivity : AppCompatActivity() {
 
     val adapter = GroupAdapter<GroupieViewHolder>()
     var toUser: User? = null
-
-    /** Gets the person the user is talking to and ignores any notifications from that user, but no other users. **/
-    override fun onResume() {
-        super.onResume()
-    }
 
     /** Resets user. **/
     override fun onPause() {
@@ -137,8 +128,7 @@ class ChatLogActivity : AppCompatActivity() {
                 imageAttachedLayout.visibility = View.VISIBLE
                 sendMessageButton.isEnabled = true
                 photoAttachmentUri = viewModel.photoAttachmentUri
-            }
-            else if (viewModel.fileAttachmentUri != null) {
+            }  else if (viewModel.fileAttachmentUri != null) {
                 fileAttachedLayout.visibility = View.VISIBLE
                 sendMessageButton.isEnabled = true
                 fileAttachmentUri = viewModel.fileAttachmentUri
@@ -149,6 +139,23 @@ class ChatLogActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this)
         layoutManager.stackFromEnd = true /** Recycler view will adjust position when keyboard is raised. **/
         recyclerChatLog.layoutManager = layoutManager
+
+        /** Recycler view will display a button to scroll to bottom if user is browsing previous messages. **/
+        recyclerChatLog.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+            val layoutManager = recyclerChatLog.layoutManager as LinearLayoutManager
+            val position = layoutManager.findLastVisibleItemPosition()
+            if (position < recyclerChatLog.adapter!!.itemCount - 1) {
+                goToBottomButton.visibility = View.VISIBLE
+                goToBottomButton.isEnabled = true
+            } else {
+                goToBottomButton.visibility = View.GONE
+                goToBottomButton.isEnabled = false
+            }
+        }
+
+        goToBottomButton.setOnClickListener {
+            recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+        }
 
         supportActionBar?.title = toUser?.username
         supportActionBar?.elevation = 0f
@@ -194,13 +201,21 @@ class ChatLogActivity : AppCompatActivity() {
             }
         }
 
-        attachPhoto.setOnClickListener {
+        attachPhotoButton.setOnClickListener {
+            if (imageAttachedLayout.visibility == View.VISIBLE || fileAttachedLayout.visibility == View.VISIBLE ) {
+                Snackbar.make(recyclerChatLog, "You already have a file attached", Snackbar.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, 0)
         }
 
-        attachFile.setOnClickListener {
+        attachFileButton.setOnClickListener {
+            if (imageAttachedLayout.visibility == View.VISIBLE || fileAttachedLayout.visibility == View.VISIBLE ) {
+                Snackbar.make(recyclerChatLog, "You already have a file attached", Snackbar.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "*/*"
             startActivityForResult(intent, 1)
@@ -453,21 +468,23 @@ class ChatLogActivity : AppCompatActivity() {
                                 var sequentialTo = false
 
                                 if (adapter.itemCount != 0) { /** Checks most recent chat message to determine which user sent it and doesn't display
-                                 profile picture for that user if they sent the most recent message **/
+                                 profile picture for that user if they sent the most recent message. **/
                                     val test = adapter.getItem(adapter.itemCount - 1)
                                     when (test.layout) {
                                         R.layout.chat_message_from,
                                         R.layout.chat_message_from_sequential,
                                         R.layout.chat_message_from_image,
                                         R.layout.chat_message_from_image_sequential,
-                                        R.layout.chat_message_from_file -> {
+                                        R.layout.chat_message_from_file,
+                                        R.layout.chat_message_from_file_sequential-> {
                                             sequentialFrom = true
                                         }
                                         R.layout.chat_message_to,
                                         R.layout.chat_message_to_sequential,
                                         R.layout.chat_message_to_image,
                                         R.layout.chat_message_to_image_sequential,
-                                        R.layout.chat_message_to_file -> {
+                                        R.layout.chat_message_to_file,
+                                        R.layout.chat_message_to_file_sequential-> {
                                             sequentialTo = true
                                         }
                                     }
@@ -495,9 +512,14 @@ class ChatLogActivity : AppCompatActivity() {
                                 else if (chatMessage.imageUrl != null) {
                                     adapter.add(ChatItemImage(p0.key!!, chatMessage, user!!, sequential))
                                 }
-                                recyclerChatLog.adapter = adapter
                             }
-                            recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+                            val layoutManager = recyclerChatLog.layoutManager as LinearLayoutManager
+                            val position = layoutManager.findLastVisibleItemPosition()
+                            if (position >= recyclerChatLog.adapter!!.itemCount - 2) {
+                                recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+                            } else if (position == -1) {
+                                recyclerChatLog.scrollToPosition(adapter.itemCount - 1)
+                            }
                         }
 
                         override fun onChildRemoved(p0: DataSnapshot) {
@@ -521,7 +543,6 @@ class ChatLogActivity : AppCompatActivity() {
         FirebaseManager.messageKey = "${FirebaseManager.conversationId}/${ref.key}"
         val chatMessage: ChatMessage?
         val time = System.currentTimeMillis() / 1000
-        val year = LocalDateTime.now().year
         val month = LocalDateTime.now().month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
         val date = LocalDateTime.now().dayOfMonth
         val hour = LocalDateTime.now().hour

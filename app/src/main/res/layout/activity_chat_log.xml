@@ -16,12 +16,12 @@
         android:background="@drawable/rounded_text_enter_message"
         android:ems="10"
         android:hint="Enter Message..."
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapSentences"
         android:padding="12dp"
         android:paddingEnd="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/attachFile" />
+        app:layout_constraintStart_toEndOf="@+id/attachFileButton" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerChatLog"
@@ -39,7 +39,7 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <Button
-        android:id="@+id/attachPhoto"
+        android:id="@+id/attachPhotoButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="12dp"
@@ -49,13 +49,13 @@
         app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
 
     <Button
-        android:id="@+id/attachFile"
+        android:id="@+id/attachFileButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="12dp"
         android:background="@drawable/ic_folder_open_green_24dp"
         app:layout_constraintBottom_toBottomOf="@+id/enterMessageText"
-        app:layout_constraintStart_toEndOf="@id/attachPhoto"
+        app:layout_constraintStart_toEndOf="@id/attachPhotoButton"
         app:layout_constraintTop_toTopOf="@+id/enterMessageText" />
 
     <Button
@@ -144,5 +144,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/goToBottomButton"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:backgroundTint="#8BC34A"
+        android:padding="0dp"
+        android:text="More messages below"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerChatLog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
