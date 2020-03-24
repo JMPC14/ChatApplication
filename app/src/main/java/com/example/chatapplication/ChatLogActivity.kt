@@ -683,7 +683,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.setOnMenuItemClickListener {
                         when (it.itemId) {
                             R.id.hide_message -> {
-                                viewHolder.itemView.layoutParams.height = 0
                                 val ref = FirebaseDatabase.getInstance()
                                     .getReference("/conversations/${FirebaseManager.conversationId}/${chatMessage.id}")
                                 ref.child("hidden").setValue(true)
@@ -742,7 +741,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.setOnMenuItemClickListener {
                         when (it.itemId) {
                             R.id.hide_message -> {
-                                viewHolder.itemView.layoutParams.height = 0
                                 val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/$id")
                                 ref.child("hidden").setValue(true)
                                 adapter.clear()
@@ -822,7 +820,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.setOnMenuItemClickListener {
                         when (it.itemId) {
                             R.id.hide_message -> {
-                                viewHolder.itemView.layoutParams.height = 0
                                 val ref = FirebaseDatabase.getInstance()
                                     .getReference("/conversations/${FirebaseManager.conversationId}/${chatMessage.id}")
                                 ref.child("hidden").setValue(true)
@@ -903,7 +900,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.setOnMenuItemClickListener {
                         when (it.itemId) {
                             R.id.hide_message -> {
-                                viewHolder.itemView.layoutParams.height = 0
                                 val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/$id")
                                 ref.child("hidden").setValue(true)
                                 adapter.clear()
@@ -979,7 +975,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.setOnMenuItemClickListener {
                         when (it.itemId) {
                             R.id.hide_message -> {
-                                viewHolder.itemView.layoutParams.height = 0
                                 val ref = FirebaseDatabase.getInstance()
                                     .getReference("/conversations/${FirebaseManager.conversationId}/${chatMessage.id}")
                                 ref.child("hidden").setValue(true)
@@ -1056,7 +1051,6 @@ class ChatLogActivity : AppCompatActivity() {
                     pop.setOnMenuItemClickListener {
                         when (it.itemId) {
                             R.id.hide_message -> {
-                                viewHolder.itemView.layoutParams.height = 0
                                 val ref = FirebaseDatabase.getInstance().getReference("/conversations/${FirebaseManager.conversationId}/$id")
                                 ref.child("hidden").setValue(true)
                                 adapter.clear()
@@ -1097,7 +1091,6 @@ class ChatLogActivity : AppCompatActivity() {
                         if (hideComplete) { /** Refreshes adapter only after unhiding all messages is complete. **/
                             adapter.clear()
                             listenForMessages()
-                            recyclerChatLog.adapter!!.notifyDataSetChanged()
                         }
                     }
                 })
