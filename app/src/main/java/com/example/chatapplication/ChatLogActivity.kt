@@ -81,6 +81,11 @@ class ChatLogActivity : AppCompatActivity() {
         super.onStop()
     }
 
+    override fun onResume() {
+        super.onResume()
+        FirebaseManager.otherUser = toUser
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
@@ -108,7 +113,6 @@ class ChatLogActivity : AppCompatActivity() {
         toUser = intent.getParcelableExtra(MyFirebaseMessagingService.NOT_USER_KEY) ?:
             intent.getParcelableExtra(NavigationDrawerActivity.LAT_USER_KEY) ?:
             intent.getParcelableExtra(NewMessageActivity.USER_KEY)
-        FirebaseManager.otherUser = toUser
 
         val remoteReply = RemoteInput.getResultsFromIntent(intent)
 
@@ -477,7 +481,7 @@ class ChatLogActivity : AppCompatActivity() {
                                         R.layout.chat_message_from_image,
                                         R.layout.chat_message_from_image_sequential,
                                         R.layout.chat_message_from_file,
-                                        R.layout.chat_message_from_file_sequential-> {
+                                        R.layout.chat_message_from_file_sequential -> {
                                             sequentialFrom = true
                                         }
                                         R.layout.chat_message_to,
@@ -485,7 +489,7 @@ class ChatLogActivity : AppCompatActivity() {
                                         R.layout.chat_message_to_image,
                                         R.layout.chat_message_to_image_sequential,
                                         R.layout.chat_message_to_file,
-                                        R.layout.chat_message_to_file_sequential-> {
+                                        R.layout.chat_message_to_file_sequential -> {
                                             sequentialTo = true
                                         }
                                     }
@@ -1093,6 +1097,7 @@ class ChatLogActivity : AppCompatActivity() {
                         if (hideComplete) { /** Refreshes adapter only after unhiding all messages is complete. **/
                             adapter.clear()
                             listenForMessages()
+                            recyclerChatLog.adapter!!.notifyDataSetChanged()
                         }
                     }
                 })
