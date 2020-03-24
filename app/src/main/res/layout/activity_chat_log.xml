@@ -16,7 +16,7 @@
         android:background="@drawable/rounded_text_enter_message"
         android:ems="10"
         android:hint="Enter Message..."
-        android:inputType="textPersonName|textCapSentences"
+        android:inputType="textMultiLine|textPersonName|textCapSentences"
         android:padding="12dp"
         android:paddingEnd="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
