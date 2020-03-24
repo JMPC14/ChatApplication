@@ -15,6 +15,7 @@ import android.view.MenuItem
 import androidx.lifecycle.ViewModelProvider
 import com.example.chatapplication.models.User
 import com.example.chatapplication.objects.FirebaseManager
+import com.example.chatapplication.viewmodels.EditProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -23,7 +24,6 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_edit_profile.*
-import kotlinx.android.synthetic.main.nav_header_navigation_drawer.*
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {

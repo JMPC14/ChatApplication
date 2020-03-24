@@ -23,6 +23,7 @@ import com.example.chatapplication.api.MyFirebaseMessagingService
 import com.example.chatapplication.models.ChatMessage
 import com.example.chatapplication.models.User
 import com.example.chatapplication.objects.FirebaseManager
+import com.example.chatapplication.viewmodels.ChatLogViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*

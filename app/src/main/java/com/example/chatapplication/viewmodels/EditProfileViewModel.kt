@@ -1,4 +1,4 @@
-package com.example.chatapplication
+package com.example.chatapplication.viewmodels
 
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
@@ -9,9 +9,9 @@ class EditProfileViewModel : ViewModel() {
     var emailText: String? = null
     var profileImageUrl: String? = null
 
-    private val usernameTextName = "com.example.chatapplication.EditProfileViewModel.usernameText"
+    private val usernameTextName = "com.example.chatapplication.viewmodels.EditProfileViewModel.usernameText"
     private val emailTextName = "com.exmaple.chatapplication.EditProfileViewModel.emailText"
-    private val profileImageUrlName = "com.example.chatapplication.EditProfileViewModel.profileImageUrl"
+    private val profileImageUrlName = "com.example.chatapplication.viewmodels.EditProfileViewModel.profileImageUrl"
 
     fun saveState(outState: Bundle) {
         outState.putString(usernameTextName, usernameText)

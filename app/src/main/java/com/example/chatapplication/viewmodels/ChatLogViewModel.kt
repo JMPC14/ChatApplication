@@ -1,8 +1,7 @@
-package com.example.chatapplication
+package com.example.chatapplication.viewmodels
 
 import android.net.Uri
 import android.os.Bundle
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 
 class ChatLogViewModel : ViewModel() {
@@ -10,8 +9,8 @@ class ChatLogViewModel : ViewModel() {
     var photoAttachmentUri: Uri? = null
     var fileAttachmentUri: Uri? = null
 
-    private val photoAttachmentUriName = "com.example.chatapplication.ChatLogViewModel.photoAttachmentUri"
-    private val fileAttachmentUriName = "com.example.chatapplication.ChatLogViewModel.fileAttachmentUri"
+    private val photoAttachmentUriName = "com.example.chatapplication.viewmodels.ChatLogViewModel.photoAttachmentUri"
+    private val fileAttachmentUriName = "com.example.chatapplication.viewmodels.ChatLogViewModel.fileAttachmentUri"
 
     fun saveState(outState: Bundle) {
         outState.putString(photoAttachmentUriName, photoAttachmentUri.toString())
