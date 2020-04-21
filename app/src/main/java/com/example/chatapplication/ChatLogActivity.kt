@@ -1083,8 +1083,7 @@ class ChatLogActivity : AppCompatActivity() {
                         var hideComplete = false
                         p0.children.forEach {
                             if (it.child("hidden").exists()) {
-                                if (it.child("hidden").value == true)
-                                    ref.child(it.key.toString()).child("hidden").removeValue()
+                                ref.child(it.key.toString()).child("hidden").removeValue()
                                 hideComplete = true
                             }
                         }
