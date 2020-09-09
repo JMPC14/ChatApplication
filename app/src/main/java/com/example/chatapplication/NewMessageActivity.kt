@@ -53,6 +53,7 @@ class NewMessageActivity : AppCompatActivity() {
             val userItem = item as UserItem
             val cid = UUID.randomUUID().toString()
             val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${FirebaseManager.user!!.uid}/${userItem.user.uid}")
+            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseManager.user!!.uid}")
             ref.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
                 }
@@ -68,7 +69,6 @@ class NewMessageActivity : AppCompatActivity() {
                             return /** If current conversation ID already exists, then takes the user to
                             that conversation instead of creating a new one. **/
                         } else {
-                            val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/${userItem.user.uid}/${FirebaseManager.user!!.uid}")
                             toRef.addListenerForSingleValueEvent(object: ValueEventListener {
                                 override fun onCancelled(p0: DatabaseError) {
                                 }
@@ -95,6 +95,7 @@ class NewMessageActivity : AppCompatActivity() {
                         }
                     }
                     ref.child("cid").setValue(cid)
+                    toRef.child("cid").setValue(cid)
                     val intent = Intent(view.context, ChatLogActivity::class.java)
                     intent.putExtra(USER_KEY, userItem.user)
                     startActivity(intent)
