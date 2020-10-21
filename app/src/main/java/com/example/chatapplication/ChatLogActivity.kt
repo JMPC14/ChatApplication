@@ -121,7 +121,7 @@ class ChatLogActivity : AppCompatActivity() {
             FirebaseManager.notificationTempMessage = message
             performSendMessage()
             FirebaseManager.notificationTempMessage = null
-            finish()
+//            finish()
 
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.cancel(MyFirebaseMessagingService.NOTIFICATION_ID)

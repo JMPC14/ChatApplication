@@ -75,7 +75,10 @@ class NewContactActivity : AppCompatActivity() {
 
         override fun bind(viewHolder: GroupieViewHolder, position: Int) {
             viewHolder.itemView.usernameContactRow.text = user.username
-            Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.userImageContactRow)
+            if (user.profileImageUrl.isNotEmpty()) {
+                Picasso.get().load(user.profileImageUrl)
+                    .into(viewHolder.itemView.userImageContactRow)
+            }
         }
 
         override fun getLayout(): Int {
