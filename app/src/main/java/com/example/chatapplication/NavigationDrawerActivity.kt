@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -158,6 +159,7 @@ class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigatio
                 FirebaseManager.token = it.result?.token
                 FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(
                     FirebaseManager.token)
+                Log.d("TAG", "SETTING TOKEN IN NAV")
             }
             val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {

@@ -43,11 +43,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(p0: String) {
         val uid = FirebaseAuth.getInstance().uid
-        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
-            FirebaseManager.token = it.result?.token
-            FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(
-                FirebaseManager.token
-            )
+        if (uid != null) {
+            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener {
+                FirebaseManager.token = it.result?.token
+                FirebaseDatabase.getInstance().getReference("/users/$uid").child("token").setValue(
+                    FirebaseManager.token
+                )
+                Log.d("TAG", "SETTING TOKEN IN SERVICE")
+            }
         }
     }
 
